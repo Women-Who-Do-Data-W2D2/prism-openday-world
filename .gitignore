@@ -28,3 +28,6 @@ dist.zip
 # local poster thumbnails are fetched, never committed
 content/thumbs
 maps/*-preview.png
+
+# Claude Code settings (local only)
+.claude/
