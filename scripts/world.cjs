@@ -4,7 +4,7 @@
 const fs = require("fs"), path = require("path");
 const ROOT = path.join(__dirname, "..");
 function readEnv(k) { try { const m = fs.readFileSync(path.join(ROOT, ".env"), "utf8").match(new RegExp("^" + k + "=(.*)$", "m")); return m && m[1].trim(); } catch (e) { return null; } }
-const BASE = (process.env.PAGES_BASE || readEnv("PAGES_BASE") || "https://varchanaiyer.github.io/prism-openday-world").replace(/\/$/, "");
+const BASE = (process.env.PAGES_BASE || readEnv("PAGES_BASE") || "https://Women-Who-Do-Data-W2D2.github.io/prism-openday-world").replace(/\/$/, "");
 const TRACKS = {
   technical: { name: "Technical Safety", color: "#5b8def" },
   evals: { name: "Risks & Evaluations", color: "#e0a03c" },

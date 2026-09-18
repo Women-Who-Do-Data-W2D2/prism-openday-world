@@ -4,7 +4,7 @@ A walk-around venue for the PRISM open day, built on [WorkAdventure](https://wor
 PRISM is the Peer-vetted Research Initiative for Safety Methodologies, a sixteen-week
 AI safety research fellowship run by [Women Who Do Data](https://w2d2.org).
 
-**Play it:** https://play.workadventu.re/_/global/varchanaiyer.github.io/prism-openday-world/maps/lobby.tmj
+**Play it:** https://play.workadventu.re/_/global/Women-Who-Do-Data-W2D2.github.io/prism-openday-world/maps/lobby.tmj
 
 Arrow keys or WASD to walk. Walk up to someone and your cameras connect. Stand on a sign
 or a coloured strip and press SPACE. The buttons at the bottom jump between rooms.
@@ -59,7 +59,7 @@ content/*  --fetch-posters-->  content/posters.json + content/thumbs/*.png
 ## Quick start on a fresh clone
 
 ```sh
-git clone https://github.com/varchanaiyer/prism-openday-world
+git clone https://github.com/Women-Who-Do-Data-W2D2/prism-openday-world
 cd prism-openday-world
 nvm use 22            # Node 20 or newer; the build tools need it
 npm install
@@ -97,7 +97,7 @@ Forks do not deploy to the live address. Work on a branch or a fork and open a p
 a preview image from `npm run previews` in the pull request says more than the diff.
 
 To give someone push access, the owner runs
-`gh api -X PUT repos/varchanaiyer/prism-openday-world/collaborators/<github-user> -f permission=push`
+`gh api -X PUT repos/Women-Who-Do-Data-W2D2/prism-openday-world/collaborators/<github-user> -f permission=push`
 or uses Settings, Collaborators on GitHub.
 
 ## Hosting
@@ -106,7 +106,7 @@ The play address above uses WorkAdventure's free hosted plan: ten visitors at a 
 audio and video. For a bigger crowd, point a self-hosted WorkAdventure server at the same maps.
 The Hetzner recipe (one small server, about 8 EUR a month) lives in the museum world repo,
 `ai-safety-museum-world/hosting/`, and the play address pattern is
-`https://<your host>/_/global/varchanaiyer.github.io/prism-openday-world/maps/lobby.tmj`.
+`https://<your host>/_/global/Women-Who-Do-Data-W2D2.github.io/prism-openday-world/maps/lobby.tmj`.
 
 ## Folders
 

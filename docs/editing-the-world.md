@@ -164,7 +164,7 @@ lives at a `https://play.workadventu.re/@/...` address instead of GitHub Pages.
   touches a red one.
 - `npm run buildmap` is exactly what the deploy runs. If it fails, the deploy would have failed.
 - To try a change in the real client before pushing to `main`, push to a branch and play
-  `https://play.workadventu.re/_/test/varchanaiyer.github.io/prism-openday-world/maps/lobby.tmj` after
+  `https://play.workadventu.re/_/test/Women-Who-Do-Data-W2D2.github.io/prism-openday-world/maps/lobby.tmj` after
   merging, or serve locally through an https tunnel as described in `HOW-TO-WORKADVENTURE.md`. The `test`
   label keeps you out of the room the visitors are in.
 - `hosting/tests/wa-client-test.js` in the museum world repo drives the real client with Playwright and walks

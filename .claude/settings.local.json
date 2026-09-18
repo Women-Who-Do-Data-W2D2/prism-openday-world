@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run content:*)",
+      "Bash(cat:*)",
+      "Bash(node -e:*)",
+      "Bash(NODE_OPTIONS= PAGES_BASE=\"\" node:*)",
+      "Bash(PAGES_BASE=\"https://Women-Who-Do-Data-W2D2.github.io/prism-openday-world\" npm run content:*)",
+      "Bash(PAGES_BASE=\"https://Women-Who-Do-Data-W2D2.github.io/prism-openday-world\" npm run buildmap:*)",
+      "Bash(find:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
