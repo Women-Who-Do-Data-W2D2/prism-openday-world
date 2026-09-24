@@ -69,9 +69,9 @@ function hall() {
   const r = new Room("hall", W, H);
   r.floor(1, 3, W - 2, H - 4); r.box(0, 0, W, H, 2);
 
-  // Hall banner at top (if available)
+  // Hall banner in center near spawn (on floor/decor layer)
   if (TS.banners && TS.banners.hall) {
-    r.grid("walls", TS.banners.hall, Math.floor(W / 2) - 6, 1);
+    r.grid("decor", TS.banners.hall, Math.floor(W / 2) - 6, Math.floor(H / 2) - 1);
   }
 
   // Group teams by wall
@@ -116,7 +116,8 @@ function hall() {
   });
 
   // West wall: posters face east (boards at x=1, interaction to right)
-  const westY = [5, 11, 17]; // y positions for 3 posters
+  // Each board is 3 tiles tall, 2 tile gap between, start at y=8 to clear north posters (end at y=7)
+  const westY = [8, 13, 18]; // y positions for 3 posters
   byWall.west.forEach((t, i) => {
     const x = 1, y = westY[i];
     if (TS.boards && TS.boards[t.slug]) {
@@ -141,11 +142,6 @@ function hall() {
     r.jitsi("call-" + t.slug, x - 3, y, 3, BOARD_H, "PRISM-" + t.slug);
     r.zone("team-" + t.slug, x - 3, y, 3, BOARD_H);
   });
-
-  // Center decorations (if rug available)
-  if (F.rug) {
-    r.grid("decor", F.rug, Math.floor(W / 2) - 2, Math.floor(H / 2) - 1);
-  }
 
   // Plants in corners
   r.plants([[1, 3], [W - 2, 3], [1, H - 2], [W - 2, H - 2]]);
