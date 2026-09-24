@@ -59,7 +59,7 @@ const byTrack = k => teams.filter(t => t.track === k), postersBy = k => posters.
 write("directory.html", shell("Directory", `
 <p class="kicker">PRISM open day</p><h1>Directory</h1>
 <p>Five rooms, joined by doors. Walk onto a door mat to go through. Stand on a sign or a coloured strip and press SPACE to read.</p>
-${Object.keys(ROOMS).map(k => `<div class="card"><h3>${esc(ROOMS[k].name)}</h3><p>${esc(ROOMS[k].blurb)}</p></div>`).join("")}
+${Object.keys(ROOMS).filter(k => ROOMS[k].listed !== false).map(k => `<div class="card"><h3>${esc(ROOMS[k].name)}</h3><p>${esc(ROOMS[k].blurb)}</p></div>`).join("")}
 <h2>The four tracks</h2>
 ${Object.keys(TRACKS).map(k => `<div class="card" style="--accent:${TRACKS[k].color}"><h3>${esc(TRACKS[k].name)}</h3><p>Teams: ${byTrack(k).map(t => esc(t.mentor)).join(", ") || "none"}</p><p>Posters in the hall: ${postersBy(k).length}</p></div>`).join("")}
 <h2>Tips</h2>

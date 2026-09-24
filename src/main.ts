@@ -15,7 +15,7 @@ WA.onInit().then(() => {
     });
   }
   const here = (WA.room.mapURL || "").split("/").pop() || "";
-  const rooms: [string, string][] = [["lobby", "Lobby"], ["posters", "Posters"], ["stage", "Stage"], ["teams", "Teams"], ["lounge", "Lounge"]];
+  const rooms: [string, string][] = [["lobby", "Lobby"], ["posters", "Posters"]];
   for (const [key, label] of rooms) {
     if (here.startsWith(key + ".tmj")) continue;
     WA.ui.actionBar.addButton({ id: "go-" + key, label, callback: () => { WA.nav.goToRoom("./" + key + ".tmj#arrive"); } });

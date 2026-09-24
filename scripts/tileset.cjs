@@ -95,29 +95,32 @@ function whiteboard() { const s = sprite(2, 1); s.rect(2, 2, 60, 26, "#c9ccd2").
     teams: A.add(plate(["TEAM ROOMS", "TWELVE TEAMS, FOUR TRACKS. PRESS SPACE AT A NAMEPLATE"], 12, 2, { scales: [4, 1], colors: [GOLD, PAPER] })),
     lounge: A.add(plate(["LOUNGE", "COFFEE, SOFAS AND A QUIET ROOM"], 8, 2, { scales: [4, 1], colors: [GOLD, PAPER] }))
   };
-  const signs = {}; for (const t of ["↑ POSTERS", "← TEAMS", "STAGE →", "↓ LOUNGE", "↓ LOBBY", "← LOBBY", "LOBBY →", "↑ LOBBY", "↓ FOYER"]) signs[t] = A.add(plate([t], 3, 1, { scales: [2], colors: [GOLD] }));
-  const order = ["technical", "evals", "frontier", "governance"], roomBanners = {}, doorSigns = {}, sideSigns = {}, signposts = {};
+  const signs = { "↓ LOBBY": A.add(plate(["↓ LOBBY"], 3, 1, { scales: [2], colors: [GOLD] })) };
+  const order = ["technical", "evals", "frontier", "governance"], roomBanners = {}, doorSigns = {}, downSigns = {}, leftSigns = {}, rightSigns = {}, sideSigns = {}, signposts = {};
   for (const k of order) {
     roomBanners[k] = A.add(plate([TRACKS[k].name.toUpperCase() + " POSTERS", "STAND ON THE COLOURED STRIP BELOW A BOARD AND PRESS SPACE"], 12, 2, { scales: [3, 1], colors: [GOLD, PAPER], edge: TRACKS[k].color }));
-    doorSigns[k] = A.add(plate(["↑ " + TRACKS[k].name.toUpperCase()], 6, 1, { scales: [2], colors: [GOLD], edge: TRACKS[k].color }));
+    /* full-name signs for the lobby's own four doors - wide enough that the full theme name never has to shrink past scale 2 */
+    doorSigns[k] = A.add(plate(["↑ " + TRACKS[k].name.toUpperCase()], 7, 1, { scales: [2], colors: [GOLD], edge: TRACKS[k].color }));
+    downSigns[k] = A.add(plate(["↓ " + TRACKS[k].name.toUpperCase()], 7, 1, { scales: [2], colors: [GOLD], edge: TRACKS[k].color }));
+    leftSigns[k] = A.add(plate(["← " + TRACKS[k].name.toUpperCase()], 7, 1, { scales: [2], colors: [GOLD], edge: TRACKS[k].color }));
+    rightSigns[k] = A.add(plate([TRACKS[k].name.toUpperCase() + " →"], 7, 1, { scales: [2], colors: [GOLD], edge: TRACKS[k].color }));
+    /* short-form signs used inside the poster rooms themselves, for the tight side-door gaps between neighbouring tracks - unchanged by the lobby redesign */
     sideSigns["← " + k] = A.add(plate(["← " + SHORT[k].toUpperCase()], 4, 1, { scales: [2], colors: [GOLD], edge: TRACKS[k].color }));
     sideSigns[k + " →"] = A.add(plate([SHORT[k].toUpperCase() + " →"], 4, 1, { scales: [2], colors: [GOLD], edge: TRACKS[k].color }));
   }
-  signposts.foyer = A.add(plate(["↑ FOUR POSTER ROOMS", order.map(k => SHORT[k].toUpperCase()).join(" · "), "↓ LOBBY"], 6, 2, { scales: [2, 1, 2], colors: [GOLD, PAPER, PAPER] }));
   order.forEach((k, i) => {
     const lines = [];
-    if (i > 0) lines.push("← " + TRACKS[order[i - 1]].name.toUpperCase());
-    if (i < order.length - 1) lines.push(TRACKS[order[i + 1]].name.toUpperCase() + " →");
-    lines.push("↓ FOYER · LOBBY");
+    if (i > 0) lines.push("← " + SHORT[order[i - 1]].toUpperCase());
+    if (i < order.length - 1) lines.push(SHORT[order[i + 1]].toUpperCase() + " →");
+    lines.push("↓ LOBBY");
     signposts[k] = A.add(plate(lines, 6, 2, { scales: lines.map(() => 2), colors: lines.map((l, j) => j === lines.length - 1 ? GOLD : PAPER), edge: TRACKS[k].color }));
   });
-  const signpost = A.add(plate(["↑ POSTERS", "← TEAMS · STAGE →", "↓ LOUNGE"], 5, 2, { scales: [2, 2, 2], colors: [GOLD, PAPER, PAPER] }));
   const wallsigns = {}; for (const t of ["PROGRAMME", "DIRECTORY", "QUIET ROOM"]) wallsigns[t] = A.add(plate([t], 3, 1, { scales: [2] }));
   wallsigns["GET INVOLVED"] = A.add(plate(["GET INVOLVED"], 4, 1, { scales: [2] }));
   const bays = {}; for (const k in TRACKS) bays[k] = A.add(plate([TRACKS[k].name.toUpperCase()], 5, 1, { scales: [2], edge: TRACKS[k].color }));
   const nameplates = {}; for (const t of teams) nameplates[t.slug] = A.add(plate([t.short || t.mentor, t.theme], 6, 2, { scales: [2, 1], colors: [PAPER, GOLD], edge: TRACKS[t.track].color }));
   const boards = {}; for (const p of posters) boards[p.id] = await board(p);
-  const out = { file: "../tilesets/prism.png", cols: A.cols, width: A.width, height: A.height, tileCount: A.tiles.length, T, floors, faces, trackFloors, furniture, banners, roomBanners, signs, doorSigns, sideSigns, signpost, signposts, wallsigns, bays, nameplates, boards };
+  const out = { file: "../tilesets/prism.png", cols: A.cols, width: A.width, height: A.height, tileCount: A.tiles.length, T, floors, faces, trackFloors, furniture, banners, roomBanners, signs, doorSigns, downSigns, leftSigns, rightSigns, sideSigns, signposts, wallsigns, bays, nameplates, boards };
   fs.mkdirSync(path.join(ROOT, "tilesets"), { recursive: true });
   fs.writeFileSync(path.join(ROOT, "tilesets", "prism.png"), A.png());
   fs.writeFileSync(path.join(ROOT, "tilesets", "prism.json"), JSON.stringify(out));
