@@ -2,98 +2,134 @@
  {
   "slug": "rachel-freedman",
   "mentor": "Rachel Freedman",
-  "title": "Reward Basis Decomposition",
+  "affiliation": "ML PhD Student, UC Berkeley (Center for Human-Compatible AI)",
+  "title": "Interpreting Personalized Reward Model Bases",
   "theme": "Personalized reward model bases",
-  "track": "technical",
-  "blurb": "Personalized reward models such as LoRe represent each person's preferences as a mix of a few shared basis reward functions. This team studies what those learned bases actually encode, whether they are as diverse as they look, and what a single reward direction in a language model is really measuring."
- },
- {
-  "slug": "aviram-berg",
-  "mentor": "Aviram Berg",
-  "title": "Cross-Lingual Rule Following",
-  "theme": "Do rules and concepts hold across languages?",
-  "track": "technical",
-  "blurb": "When a model is told a rule in English, does it keep following it in Hindi, Swahili or Urdu? The team builds a dataset of rule and cultural pairs across many languages and uses activation patching and attribution methods to trace where a model binds a rule and how much of its reasoning happens in English."
- },
- {
-  "slug": "rubi-hudson",
-  "mentor": "Rubi Hudson",
-  "title": "AI Preference Drift During Training",
-  "theme": "How preferences move across SFT, DPO and GRPO",
-  "track": "technical",
-  "blurb": "Post-training changes what a model wants, not just what it can do. The team trains small open models through supervised fine-tuning, DPO and GRPO, measures the model's stated preferences at each stage, and asks whether preference drift is predictable, and whether it tracks capability change or moves on its own."
+  "wall": "north",
+  "position": 1,
+  "fellows": ["Harsh Sharma", "Hassan Suliman", "Ifesi Onubogu", "Mohamed Eldagla", "Prerana Rane"],
+  "blurb": "RLHF-based alignment assumes a single stakeholder perspective, but in practice reward models are trained on feedback from diverse individuals with different values. A family of methods addresses this by learning a small set of reward \"bases\", where each person's preferences are expressed as a linear combination of those bases. The safety problem: no existing work actually interprets what these bases represent. Without interpretability, the bases cannot be used for monitoring or control."
  },
  {
   "slug": "manjari-narayan",
   "mentor": "Manjari Narayan",
+  "affiliation": "Principal Consultant, Nyaya Labs; Founder, The Surrogate Science Project",
   "title": "Interpretability for Scientific Causal Reasoning",
   "theme": "Probing causal understanding of molecules",
-  "track": "technical",
-  "blurb": "Can a language model reason causally about chemistry, or does it pattern-match? Using potency and selectivity data for a family of receptor ligands as a test case, the team designs standardized prompts and interpretability probes to test four hypotheses about how models encode scientific causal structure."
+  "wall": "north",
+  "position": 2,
+  "fellows": ["Afnan Alabdulwahab", "Laurent Vong", "Nice Cailie Ineza", "Sanskriti Shindadkar"],
+  "blurb": "How do we know whether the reasoning process by which a model arrives at an answer is actually trustworthy? Current LLM evaluations lack causal reasoning problems representative of real world science. Building on a prior benchmark on causal reasoning in drug toxicity evaluation, fellows will apply and evaluate interpretability tools on scientific reasoning problems."
+ },
+ {
+  "slug": "aviram-berg",
+  "mentor": "Aviram Berg",
+  "affiliation": "Lecturer on AI Safety; Founder, CCI",
+  "title": "Do Rules and Concepts Hold Across Languages?",
+  "theme": "Cross-lingual rule following",
+  "wall": "north",
+  "position": 3,
+  "fellows": ["Anu Adesina", "Ifeoma Okoh", "Janhavi Khindkar", "Maria Lomaeva", "Ayesha Imran"],
+  "blurb": "AI safety and compliance rules are almost exclusively written in English, but the models being deployed operate across many languages. This project investigates: when a rule is embedded into a model's internal representation space in one language, does it hold in another? And when it degrades, how and why?"
+ },
+ {
+  "slug": "rubi-hudson",
+  "mentor": "Rubi Hudson",
+  "affiliation": "Research Lead, Principled Agents",
+  "title": "Preference Drift in Language Models",
+  "theme": "How preferences move across SFT, DPO and GRPO",
+  "wall": "east",
+  "position": 1,
+  "fellows": ["Bukhaar Ali Mahamud Mahamed", "Calissa Man", "Hilary Torn", "Xianglin Yang"],
+  "blurb": "As a model is trained on certain capabilities, do its preferences over which tasks it wants to do shift in ways it cannot anticipate? If a model trained heavily on coding begins to \"want\" coding tasks more than before, that has direct implications for how cohesive an agent the model is becoming, which is itself a safety-relevant signal."
  },
  {
   "slug": "naiyarah-hussain",
   "mentor": "Naiyarah Hussain",
+  "affiliation": "Co-founder, AI Safety UAE",
   "title": "Multilingual Safety Evals",
   "theme": "Native-authored multi-turn safety evaluation",
-  "track": "evals",
-  "blurb": "Most safety evaluations are written in English and translated. This team writes multi-turn safety evaluations natively in four languages, runs them against current models, and asks whether safety behaviour holds up when the conversation is not in English."
- },
- {
-  "slug": "branwen-owen",
-  "mentor": "Branwen Owen",
-  "title": "Epidemiological Methods for AI Harm Monitoring",
-  "theme": "Measurement readiness for high-severity AI harms",
-  "track": "evals",
-  "blurb": "Public health learned long ago how to monitor harms it cannot fully see. The team borrows epidemiological tools, surveillance, exposure measurement and case definitions, to take a census of the evidence available for high-severity AI harms and to ask which harms we are ready to measure and which we are not."
+  "wall": "east",
+  "position": 2,
+  "fellows": ["Abdullah Ibne Hanif Arean", "Fathima Raihaan Ihsan", "Fatma Egal", "Victor Olufemi"],
+  "blurb": "AI safety evaluations are almost exclusively conducted in English. Yet models are increasingly deployed in high-stakes government services across multilingual populations. Do safety properties hold when the same models are tested in other languages? Do safety and capability claims in frontier model system cards generalize?"
  },
  {
   "slug": "ayodeji-ibitoye",
-  "mentor": "Ayodeji Olusegun Ibitoye",
-  "title": "LLMs and Conflicting Information",
-  "theme": "How models handle contradictory sources in health",
-  "track": "evals",
-  "blurb": "Real information conflicts: guidelines disagree, sources are stale, studies contradict each other. The team builds a benchmark of conflicting health information and measures whether language models notice the conflict, how they resolve it, and when they should abstain.",
-  "short": "Ayodeji Ibitoye"
- },
- {
-  "slug": "zeenath-reza-khan",
-  "mentor": "Zeenath Reza Khan",
-  "title": "Trust Calibration in Healthcare AI",
-  "theme": "Trust under incomplete information",
-  "track": "evals",
-  "blurb": "Clinicians rarely have complete information, and neither do the AI systems that assist them. The team studies how trust in healthcare AI should be calibrated when inputs are incomplete, and how a system's expressed confidence should change as information is withheld."
- },
- {
-  "slug": "preeti-ravindra",
-  "mentor": "Preeti Ravindra",
-  "title": "Synchronous Threat Monitoring",
-  "theme": "Runtime monitors for AI control",
-  "track": "frontier",
-  "blurb": "AI control asks how to use a capable model safely even if it might be working against you. The team builds and attacks an information-flow-graph monitor that watches an agent's actions as they happen, hunting for the blind spots an adversarial agent could use and measuring the safety and usefulness trade-off across auditing budgets."
- },
- {
-  "slug": "jeyashree-krishnan",
-  "mentor": "Jeyashree Krishnan",
-  "title": "Red-Teaming Protein Foundation Models",
-  "theme": "Adversarial evasion of biosafety classifiers",
-  "track": "frontier",
-  "blurb": "Protein foundation models can design sequences, and biosafety classifiers are meant to catch dangerous ones. The team red-teams those classifiers with adversarial sequence edits, measures how often a harmful design slips through, and studies hardening methods that keep the science useful while closing the gap."
- },
- {
-  "slug": "jobst-heitzig",
-  "mentor": "Jobst Heitzig",
-  "title": "Grounding Safe-by-Design AI",
-  "theme": "From a verbal situation to a formal world model",
-  "track": "frontier",
-  "blurb": "Safe-by-design methods need a formal model of the situation an AI is acting in, but real situations arrive as words. The team tests whether a language model can turn a verbal description of a situation into a formal world model faithfully enough to build safety guarantees on, and builds a test suite for that step."
+  "mentor": "Ayodeji Ibitoye",
+  "affiliation": "Senior Lecturer in Computing and Data Science, University of Greenwich",
+  "title": "Decision Update Consistency in LLMs",
+  "theme": "How models handle contradictory sources",
+  "wall": "east",
+  "position": 3,
+  "fellows": ["Adepoju Jeremiah Moyondafoluwa", "Alexey Kuntsevich", "Bouthayna Mesraf"],
+  "blurb": "This project investigates how large language models update decisions when confronted with conflicting evidence. We introduce the concept of Decision Update Consistency (DUC) to assess whether models appropriately revise, resist, or over-weight prior recommendations when new information is introduced."
  },
  {
   "slug": "aryan-agarwal",
   "mentor": "Aryan Agarwal",
+  "affiliation": "Policy Analyst, OECD",
   "title": "How AI Labs Redefine Safety",
   "theme": "Close-coding the labs' own safety documents",
-  "track": "governance",
-  "blurb": "What does 'safety' mean in a frontier lab's own words, and how has that meaning moved? The team close-codes public safety frameworks, model cards and policy documents over time, tracking where definitions were loosened, tightened or quietly replaced."
+  "wall": "south",
+  "position": 1,
+  "fellows": ["Caitlin Mah", "Lisa V", "Rachita Mehta", "Sakshi Chaubey", "Yejin Kim"],
+  "blurb": "When frontier AI labs launch new models, do their safety standards stay consistent or do the definitions of safety, risk, and frontier itself quietly shift? This project investigates how major AI labs have changed their safety definitions, benchmarking practices, and model documentation over time."
+ },
+ {
+  "slug": "branwen-owen",
+  "mentor": "Branwen Owen",
+  "affiliation": "Research Fellow, Arcadia Impact",
+  "title": "Estimating Harm and Exposure for AI Harm Monitoring",
+  "theme": "Epidemiological methods for AI harms",
+  "wall": "south",
+  "position": 2,
+  "fellows": ["Danielle Dalisay", "Irum Younis Khan", "Sarah Quayyum", "Sharifah Omar"],
+  "blurb": "A methodology is being developed to track specific AI harms over time, by estimating both harm counts and exposure to harm. With both, we can determine whether a harm is mitigating, escalating, receding, or concentrating. This project explores ways to automate this classification."
+ },
+ {
+  "slug": "zeenath-reza-khan",
+  "mentor": "Zeenath Reza Khan",
+  "affiliation": "Associate Professor, University of Wollongong in Dubai",
+  "title": "Trust Calibration in Healthcare AI",
+  "theme": "Trust under incomplete information",
+  "wall": "south",
+  "position": 3,
+  "fellows": ["Favour Chisom Akabogu", "Kumari Neha Priya", "Rokhaya Diagne", "Tustee Mazumdar"],
+  "blurb": "This project explores how AI output design influences user trust and decision-making in AI-assisted healthcare contexts. A key AI safety concern is overreliance on AI systems when users interpret confident outputs as reliable without sufficient scrutiny."
+ },
+ {
+  "slug": "preeti-ravindra",
+  "mentor": "Preeti Ravindra",
+  "affiliation": "AI Security Lead",
+  "title": "Synchronous Monitoring for AI Control",
+  "theme": "Runtime monitors for AI control",
+  "wall": "west",
+  "position": 1,
+  "fellows": ["Henry Chen", "Isabella Luong", "Jafar Isbarov", "Kemunto Ochwang'i"],
+  "blurb": "Current AI control research focuses largely on detecting attacks after the fact. This project addresses an open question: can monitors reliably detect and respond to attacks while they are happening? Extending prior async control work to the synchronous setting has direct implications for deploying AI safely in real-time, high-stakes environments."
+ },
+ {
+  "slug": "jobst-heitzig",
+  "mentor": "Jobst Heitzig",
+  "affiliation": "Senior Scientist, Potsdam Inst. for Climate Impact Research / Zuse Inst. Berlin",
+  "title": "Grounding Safe-by-Design AI",
+  "theme": "From verbal situations to formal world models",
+  "wall": "west",
+  "position": 2,
+  "fellows": ["Amna Jamal", "Anidipta", "Gagana M D", "Souhaila Djaffal"],
+  "blurb": "Safe-by-design AI frameworks require agents to have a formal, tractable model of the world. This project tests how well LLMs can construct hierarchies of stochastic games encoded in JSON, representing the safety-relevant states, actions, and consequences of situations where an AI agent interacts with human and/or AI agents."
+ },
+ {
+  "slug": "jeyashree-krishnan",
+  "mentor": "Jeyashree Krishnan",
+  "coMentor": "Ajay Rangarajan",
+  "affiliation": "Senior ML Scientist, Siemens AG",
+  "title": "Red-Teaming Protein Foundation Models",
+  "theme": "Adversarial evasion of biosafety classifiers",
+  "wall": "west",
+  "position": 3,
+  "fellows": ["Aayush Gandhi", "Vrinda Nair", "Girardy Momplaisir"],
+  "blurb": "Protein foundation models are widely deployed in drug discovery and synthetic biology, but adversarial robustness evaluations remain limited. This team will extend adversarial evaluation to ESM2 and introduce more biologically grounded metrics. Responsible disclosure is built into the timeline."
  }
 ]

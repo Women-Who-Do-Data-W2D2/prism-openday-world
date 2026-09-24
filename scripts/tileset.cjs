@@ -1,17 +1,15 @@
 #!/usr/bin/env node
-/* Paints the open day tileset from the content: floors and wall faces per
-   room, a standing board for every NeurIPS poster with its thumbnail and
-   title, a nameplate for every team, banners, signs and furniture. Writes
-   tilesets/prism.png and tilesets/prism.json (the id table the map builder
-   reads). Everything is generated, so the tileset is CC0; the poster
-   thumbnails inside it belong to their authors.  node scripts/tileset.cjs */
+/* Paints the open day tileset from the content: floors and wall faces for
+   the hall, a standing board for every team with their poster thumbnail and
+   title, banners, signs and furniture. Writes tilesets/prism.png and
+   tilesets/prism.json (the id table the map builder reads). Everything is
+   generated, so the tileset is CC0; the poster thumbnails inside it belong
+   to their authors.  node scripts/tileset.cjs */
 "use strict";
 const fs = require("fs"), path = require("path");
 const sharp = require("sharp");
 const { Sprite, Atlas, font, SIZE } = require("./paint.cjs");
-const { ROOT, TRACKS, ROOMS, SHORT } = require("./world.cjs");
-const BASE_ROOMS = Object.keys(ROOMS).filter(k => !ROOMS[k].style);
-const posters = require(path.join(ROOT, "content", "posters.json"));
+const { ROOT, ROOMS, WALLS } = require("./world.cjs");
 const teams = require(path.join(ROOT, "content", "teams.json"));
 
 const INK = "#1b1f2a", PAPER = "#f4f1ea", WALLTOP = "#2b2f3a", GOLD = "#e9b949", WOOD = "#8a6a48", WOOD_LIGHT = "#b08a5e";
@@ -39,35 +37,49 @@ function plate(lines, wTiles, hTiles, { bg = INK, edge = GOLD, colors = [PAPER],
 /* ---------- floors, walls, doors ---------- */
 function floorTile(color, seed) { const s = blank(); s.rect(0, 0, SIZE, SIZE, color).rect(0, 0, SIZE, 1, shade(color, 0.1)).rect(0, 0, 1, SIZE, shade(color, 0.1)); return s.grain(3, seed); }
 T.EMPTY = A.one(blank()); T.COLLIDE = A.one(blank()); T.ZONE = A.one(blank()); T.START = A.one(blank());
-const floors = {}, faces = {}, trackFloors = {};
-for (const key of BASE_ROOMS) floors[key] = [A.one(floorTile(ROOMS[key].floor[0], 1)), A.one(floorTile(ROOMS[key].floor[1], 2))];
-for (const key in TRACKS) trackFloors[key] = A.one(floorTile(mix(TRACKS[key].color, "#ffffff", 0.7), 7));
+
+// Hall floor tiles
+const floors = {}, faces = {};
+floors.hall = [A.one(floorTile(ROOMS.hall.floor[0], 1)), A.one(floorTile(ROOMS.hall.floor[1], 2))];
+
 T.WALL_TOP = A.one(blank().rect(0, 0, SIZE, SIZE, WALLTOP).rect(0, 0, SIZE, 2, tint(WALLTOP, 0.2)).rect(0, SIZE - 2, SIZE, 2, shade(WALLTOP, 0.4)).grain(2, 5));
-for (const key of BASE_ROOMS) {
-  const c = ROOMS[key].face, mk = bottom => { const s = blank().gradient(0, 0, SIZE, SIZE, tint(c, 0.08), shade(c, 0.1)); for (let y = 8; y < SIZE; y += 8) s.rect(0, y, SIZE, 1, shade(c, 0.22)); if (bottom) s.rect(0, SIZE - 4, SIZE, 4, shade(c, 0.5)).rect(0, SIZE - 4, SIZE, 1, tint(c, 0.2)); return s.grain(2, 3); };
-  faces[key] = { top: A.one(mk(false)), bottom: A.one(mk(true)) };
-}
+
+// Hall wall faces
+const c = ROOMS.hall.face;
+const mkFace = bottom => { const s = blank().gradient(0, 0, SIZE, SIZE, tint(c, 0.08), shade(c, 0.1)); for (let y = 8; y < SIZE; y += 8) s.rect(0, y, SIZE, 1, shade(c, 0.22)); if (bottom) s.rect(0, SIZE - 4, SIZE, 4, shade(c, 0.5)).rect(0, SIZE - 4, SIZE, 1, tint(c, 0.2)); return s.grain(2, 3); };
+faces.hall = { top: A.one(mkFace(false)), bottom: A.one(mkFace(true)) };
+
 T.DOOR = A.one(blank().rect(0, 0, SIZE, SIZE, "#cfc6b2").rect(2, 2, SIZE - 4, SIZE - 4, "#e8dfc8").rect(2, 2, SIZE - 4, 2, GOLD).rect(2, SIZE - 4, SIZE - 4, 2, GOLD));
 function arrow(dir) {
-  const s = blank(), c = GOLD, a = 175;
-  if (dir === "up" || dir === "down") { s.rect(13, 13, 6, 13, c, a); for (let i = 0; i < 9; i++) s.rect(16 - i, 5 + i, 2 * i + 1, 1, c, a); return dir === "up" ? s : s.flipV(); }
-  s.rect(6, 13, 13, 6, c, a); for (let i = 0; i < 9; i++) s.rect(18 + i, 16 - (8 - i), 1, 2 * (8 - i) + 1, c, a); return dir === "right" ? s : s.flipH();
+  const s = blank(), col = GOLD, a = 175;
+  if (dir === "up" || dir === "down") { s.rect(13, 13, 6, 13, col, a); for (let i = 0; i < 9; i++) s.rect(16 - i, 5 + i, 2 * i + 1, 1, col, a); return dir === "up" ? s : s.flipV(); }
+  s.rect(6, 13, 13, 6, col, a); for (let i = 0; i < 9; i++) s.rect(18 + i, 16 - (8 - i), 1, 2 * (8 - i) + 1, col, a); return dir === "right" ? s : s.flipH();
 }
 T.ARROW_UP = A.one(arrow("up")); T.ARROW_DOWN = A.one(arrow("down")); T.ARROW_LEFT = A.one(arrow("left")); T.ARROW_RIGHT = A.one(arrow("right"));
-T.STAGE_FLOOR = A.one(blank().rect(0, 0, SIZE, SIZE, "#4a4468").rect(0, 0, SIZE, 1, "#5a5480").grain(3, 9));
-T.STAGE_EDGE = A.one(blank().rect(0, 0, SIZE, SIZE, "#4a4468").rect(0, SIZE - 6, SIZE, 6, GOLD).rect(0, SIZE - 6, SIZE, 1, tint(GOLD, 0.5)).rect(0, SIZE - 2, SIZE, 2, shade(GOLD, 0.4)));
 
-/* ---------- poster boards, 4 by 3 tiles ---------- */
-async function board(p) {
-  const col = TRACKS[p.track].color, s = new Sprite(128, 96);
-  s.rect(0, 0, 128, 96, WALLTOP).rect(1, 1, 126, 94, PAPER).rect(1, 1, 126, 3, col).rect(0, 94, 128, 2, shade(WALLTOP, 0.5));
+/* ---------- team poster boards, 4 by 3 tiles ---------- */
+async function board(team) {
+  // Get wall color for this team's position
+  const wallColor = WALLS[team.wall] ? WALLS[team.wall].color : GOLD;
+  const s = new Sprite(128, 96);
+  s.rect(0, 0, 128, 96, WALLTOP).rect(1, 1, 126, 94, PAPER).rect(1, 1, 126, 3, wallColor).rect(0, 94, 128, 2, shade(WALLTOP, 0.5));
+
+  // Try to load the team's poster image
+  const posterPath = path.join(ROOT, "content", "posters", team.slug + ".png");
   try {
-    const { data, info } = await sharp(path.join(ROOT, "content", "thumbs", p.id + ".png")).resize(118, 68, { fit: "inside" }).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    const { data, info } = await sharp(posterPath).resize(118, 68, { fit: "inside" }).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
     const ox = 5 + Math.floor((118 - info.width) / 2), oy = 7 + Math.floor((68 - info.height) / 2);
     for (let y = 0; y < info.height; y++) for (let x = 0; x < info.width; x++) { const k = (y * info.width + x) * 4; s.put(ox + x, oy + y, [data[k], data[k + 1], data[k + 2]], data[k + 3]); }
     s.frame(ox - 1, oy - 1, info.width + 2, info.height + 2, shade(PAPER, 0.4));
-  } catch (e) { s.rect(5, 7, 118, 68, "#d8d4cc"); font.draw(s, 64, 36, "POSTER", { scale: 2, color: INK, align: "center" }); }
-  const lines = font.wrap(p.title, 30, 2);
+  } catch (e) {
+    // Fallback: show placeholder with team mentor name
+    s.rect(5, 7, 118, 68, "#d8d4cc");
+    font.draw(s, 64, 30, "POSTER", { scale: 2, color: INK, align: "center" });
+    font.draw(s, 64, 48, team.mentor.split(" ")[0].toUpperCase(), { scale: 1, color: INK, align: "center" });
+  }
+
+  // Title lines at bottom
+  const lines = font.wrap(team.title, 30, 2);
   font.draw(s, 64, 79, lines[0], { scale: 1, color: INK, align: "center" });
   if (lines[1]) font.draw(s, 64, 86, lines[1], { scale: 1, color: INK, align: "center" });
   return A.add(s);
@@ -88,38 +100,42 @@ function kiosk() { const s = blank(); s.rect(13, 16, 6, 12, "#3a3d46").rect(8, 2
 function whiteboard() { const s = sprite(2, 1); s.rect(2, 2, 60, 26, "#c9ccd2").rect(4, 4, 56, 22, "#fbfbfb"); s.line(8, 10, 30, 10, "#2b6fd6").line(8, 15, 40, 15, "#2b6fd6").line(8, 20, 24, 20, "#d64545"); s.circle(48, 14, 5, "#27ae60"); s.rect(2, 28, 60, 2, "#8e939c"); return A.add(s); }
 
 (async () => {
-  const furniture = { desk: desk(), table: table(), chair: chair("#6c5b7b"), seat: chair("#8b3a4a"), sofa: sofa("#6b4f8f"), sofa2: sofa("#3f7a6a"), plant: plant(), shelf: shelf(), screen: screen(), lectern: lectern(), coffee: coffee(), rug: rug("#b8574e"), rug2: rug("#4f7f8f"), kiosk: kiosk(), whiteboard: whiteboard() };
+  // Only include furniture needed for the hall
+  const furniture = { plant: plant(), rug: rug("#b8574e") };
+
+  // Hall banner
   const banners = {
-    lobby: A.add(plate(["PRISM OPEN DAY", "PEER-VETTED RESEARCH INITIATIVE FOR SAFETY METHODOLOGIES"], 10, 2, { scales: [4, 1], colors: [GOLD, PAPER] })),
-    foyer: A.add(plate(["POSTER FOYER", "FOUR ROOMS, ONE PER TRACK. FOLLOW A COLOURED RUNNER"], 8, 2, { scales: [4, 1], colors: [GOLD, PAPER] })),
-    teams: A.add(plate(["TEAM ROOMS", "TWELVE TEAMS, FOUR TRACKS. PRESS SPACE AT A NAMEPLATE"], 12, 2, { scales: [4, 1], colors: [GOLD, PAPER] })),
-    lounge: A.add(plate(["LOUNGE", "COFFEE, SOFAS AND A QUIET ROOM"], 8, 2, { scales: [4, 1], colors: [GOLD, PAPER] }))
+    hall: A.add(plate(["PRISM POSTER HALL", "12 TEAMS · WALK TO A POSTER AND PRESS SPACE"], 12, 2, { scales: [4, 1], colors: [GOLD, PAPER] }))
   };
-  const signs = {}; for (const t of ["↑ POSTERS", "← TEAMS", "STAGE →", "↓ LOUNGE", "↓ LOBBY", "← LOBBY", "LOBBY →", "↑ LOBBY", "↓ FOYER"]) signs[t] = A.add(plate([t], 3, 1, { scales: [2], colors: [GOLD] }));
-  const order = ["technical", "evals", "frontier", "governance"], roomBanners = {}, doorSigns = {}, sideSigns = {}, signposts = {};
-  for (const k of order) {
-    roomBanners[k] = A.add(plate([TRACKS[k].name.toUpperCase() + " POSTERS", "STAND ON THE COLOURED STRIP BELOW A BOARD AND PRESS SPACE"], 12, 2, { scales: [3, 1], colors: [GOLD, PAPER], edge: TRACKS[k].color }));
-    doorSigns[k] = A.add(plate(["↑ " + TRACKS[k].name.toUpperCase()], 6, 1, { scales: [2], colors: [GOLD], edge: TRACKS[k].color }));
-    sideSigns["← " + k] = A.add(plate(["← " + SHORT[k].toUpperCase()], 4, 1, { scales: [2], colors: [GOLD], edge: TRACKS[k].color }));
-    sideSigns[k + " →"] = A.add(plate([SHORT[k].toUpperCase() + " →"], 4, 1, { scales: [2], colors: [GOLD], edge: TRACKS[k].color }));
+
+  // Signs - only what we need for the hall
+  const signs = {};
+
+  // Wall signs - minimal for hall
+  const wallsigns = {};
+
+  // Team poster boards
+  const boards = {};
+  for (const t of teams) {
+    boards[t.slug] = await board(t);
   }
-  signposts.foyer = A.add(plate(["↑ FOUR POSTER ROOMS", order.map(k => SHORT[k].toUpperCase()).join(" · "), "↓ LOBBY"], 6, 2, { scales: [2, 1, 2], colors: [GOLD, PAPER, PAPER] }));
-  order.forEach((k, i) => {
-    const lines = [];
-    if (i > 0) lines.push("← " + TRACKS[order[i - 1]].name.toUpperCase());
-    if (i < order.length - 1) lines.push(TRACKS[order[i + 1]].name.toUpperCase() + " →");
-    lines.push("↓ FOYER · LOBBY");
-    signposts[k] = A.add(plate(lines, 6, 2, { scales: lines.map(() => 2), colors: lines.map((l, j) => j === lines.length - 1 ? GOLD : PAPER), edge: TRACKS[k].color }));
-  });
-  const signpost = A.add(plate(["↑ POSTERS", "← TEAMS · STAGE →", "↓ LOUNGE"], 5, 2, { scales: [2, 2, 2], colors: [GOLD, PAPER, PAPER] }));
-  const wallsigns = {}; for (const t of ["PROGRAMME", "DIRECTORY", "QUIET ROOM"]) wallsigns[t] = A.add(plate([t], 3, 1, { scales: [2] }));
-  wallsigns["GET INVOLVED"] = A.add(plate(["GET INVOLVED"], 4, 1, { scales: [2] }));
-  const bays = {}; for (const k in TRACKS) bays[k] = A.add(plate([TRACKS[k].name.toUpperCase()], 5, 1, { scales: [2], edge: TRACKS[k].color }));
-  const nameplates = {}; for (const t of teams) nameplates[t.slug] = A.add(plate([t.short || t.mentor, t.theme], 6, 2, { scales: [2, 1], colors: [PAPER, GOLD], edge: TRACKS[t.track].color }));
-  const boards = {}; for (const p of posters) boards[p.id] = await board(p);
-  const out = { file: "../tilesets/prism.png", cols: A.cols, width: A.width, height: A.height, tileCount: A.tiles.length, T, floors, faces, trackFloors, furniture, banners, roomBanners, signs, doorSigns, sideSigns, signpost, signposts, wallsigns, bays, nameplates, boards };
+
+  const out = {
+    file: "../tilesets/prism.png",
+    cols: A.cols,
+    width: A.width,
+    height: A.height,
+    tileCount: A.tiles.length,
+    T,
+    floors,
+    faces,
+    furniture,
+    banners,
+    boards
+  };
+
   fs.mkdirSync(path.join(ROOT, "tilesets"), { recursive: true });
   fs.writeFileSync(path.join(ROOT, "tilesets", "prism.png"), A.png());
   fs.writeFileSync(path.join(ROOT, "tilesets", "prism.json"), JSON.stringify(out));
-  console.log("tileset:", A.tiles.length, "tiles,", A.width + "x" + A.height, "·", posters.length, "poster boards ·", teams.length, "nameplates");
+  console.log("tileset:", A.tiles.length, "tiles,", A.width + "x" + A.height, "·", teams.length, "team poster boards");
 })().catch(e => { console.error(e); process.exit(1); });
