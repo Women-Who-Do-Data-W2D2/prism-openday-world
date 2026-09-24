@@ -70,8 +70,9 @@ function hall() {
   r.floor(1, 3, W - 2, H - 4); r.box(0, 0, W, H, 2);
 
   // Hall banner in center near spawn (on floor/decor layer)
+  // Banner is 6x3 tiles, center it
   if (TS.banners && TS.banners.hall) {
-    r.grid("decor", TS.banners.hall, Math.floor(W / 2) - 6, Math.floor(H / 2) - 1);
+    r.grid("decor", TS.banners.hall, Math.floor(W / 2) - 3, Math.floor(H / 2) - 2);
   }
 
   // Group teams by wall
@@ -88,7 +89,8 @@ function hall() {
   const BOARD_W = 4, BOARD_H = 3;
 
   // North wall: posters face south (boards at y=4, interaction below)
-  const northX = [4, 12, 20]; // x positions for 3 posters
+  // Each board is 4 tiles wide, 2 tile gap between them
+  const northX = [5, 11, 17]; // x positions for 3 posters (4+2=6 spacing)
   byWall.north.forEach((t, i) => {
     const x = northX[i], y = 4;
     if (TS.boards && TS.boards[t.slug]) {

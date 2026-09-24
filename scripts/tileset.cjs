@@ -103,9 +103,9 @@ function whiteboard() { const s = sprite(2, 1); s.rect(2, 2, 60, 26, "#c9ccd2").
   // Only include furniture needed for the hall
   const furniture = { plant: plant(), rug: rug("#b8574e") };
 
-  // Hall banner
+  // Hall banner - stacked text
   const banners = {
-    hall: A.add(plate(["PRISM POSTER HALL", "12 TEAMS · WALK TO A POSTER AND PRESS SPACE"], 12, 2, { scales: [4, 1], colors: [GOLD, PAPER] }))
+    hall: A.add(plate(["PRISM", "POSTER", "SHOWCASE"], 6, 3, { scales: [3, 3, 3], colors: [GOLD, GOLD, GOLD] }))
   };
 
   // Signs - only what we need for the hall
