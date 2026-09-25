@@ -89,8 +89,8 @@ function hall() {
   const BOARD_W = 4, BOARD_H = 3;
 
   // North wall: posters face south (boards at y=4, interaction below)
-  // Each board is 4 tiles wide, 2 tile gap between them
-  const northX = [5, 11, 17]; // x positions for 3 posters (4+2=6 spacing)
+  // Each board is 4 tiles wide, 2 tile gap between them, shift right to clear W posters
+  const northX = [6, 12, 18]; // x positions for 3 posters (4+2=6 spacing)
   byWall.north.forEach((t, i) => {
     const x = northX[i], y = 4;
     if (TS.boards && TS.boards[t.slug]) {
