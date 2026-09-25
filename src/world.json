@@ -1,27 +1,18 @@
 {
  "base": "https://Women-Who-Do-Data-W2D2.github.io/prism-openday-world",
  "zones": {
-  "lobby": "The lobby. Posters: follow the arrows up through the top door. Teams left, stage right, lounge below.",
-  "posters": "The poster foyer. Four doors, one per track. Follow a coloured runner.",
-  "posters-technical": "Technical Safety posters. Stand on the strip below a board and press SPACE.",
-  "posters-evals": "Risks & Evaluations posters. Stand on the strip below a board and press SPACE.",
-  "posters-frontier": "Frontier Risks posters. Stand on the strip below a board and press SPACE.",
-  "posters-governance": "Governance posters. Stand on the strip below a board and press SPACE.",
-  "stage": "Welcome to the auditorium",
-  "teams": "Welcome to the team rooms",
-  "lounge": "Welcome to the lounge",
-  "quiet": "The quiet room. Voices off, please.",
-  "team-rachel-freedman": "Rachel Freedman's team: Reward Basis Decomposition",
-  "team-aviram-berg": "Aviram Berg's team: Cross-Lingual Rule Following",
-  "team-rubi-hudson": "Rubi Hudson's team: AI Preference Drift During Training",
+  "hall": "Welcome to the PRISM Poster Hall. Walk to a poster and press SPACE for details.",
+  "team-rachel-freedman": "Rachel Freedman's team: Interpreting Personalized Reward Model Bases",
   "team-manjari-narayan": "Manjari Narayan's team: Interpretability for Scientific Causal Reasoning",
+  "team-aviram-berg": "Aviram Berg's team: Do Rules and Concepts Hold Across Languages?",
+  "team-rubi-hudson": "Rubi Hudson's team: Preference Drift in Language Models",
   "team-naiyarah-hussain": "Naiyarah Hussain's team: Multilingual Safety Evals",
-  "team-branwen-owen": "Branwen Owen's team: Epidemiological Methods for AI Harm Monitoring",
-  "team-ayodeji-ibitoye": "Ayodeji Olusegun Ibitoye's team: LLMs and Conflicting Information",
+  "team-ayodeji-ibitoye": "Ayodeji Ibitoye's team: Decision Update Consistency in LLMs",
+  "team-aryan-agarwal": "Aryan Agarwal's team: How AI Labs Redefine Safety",
+  "team-branwen-owen": "Branwen Owen's team: Estimating Harm and Exposure for AI Harm Monitoring",
   "team-zeenath-reza-khan": "Zeenath Reza Khan's team: Trust Calibration in Healthcare AI",
-  "team-preeti-ravindra": "Preeti Ravindra's team: Synchronous Threat Monitoring",
-  "team-jeyashree-krishnan": "Jeyashree Krishnan's team: Red-Teaming Protein Foundation Models",
+  "team-preeti-ravindra": "Preeti Ravindra's team: Synchronous Monitoring for AI Control",
   "team-jobst-heitzig": "Jobst Heitzig's team: Grounding Safe-by-Design AI",
-  "team-aryan-agarwal": "Aryan Agarwal's team: How AI Labs Redefine Safety"
+  "team-jeyashree-krishnan": "Jeyashree Krishnan's team: Red-Teaming Protein Foundation Models"
  }
 }

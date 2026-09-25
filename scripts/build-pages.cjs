@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-/* Writes the pages the world opens in its side panel: one per poster, one
-   per team, the directory, programme, about, reading list, get involved
-   and the coffee machine. Plain HTML, no build step.  node scripts/build-pages.cjs */
+/* Writes the pages the world opens in its side panel: one per team,
+   the directory, programme, about, reading list, and get involved.
+   Plain HTML, no build step.  node scripts/build-pages.cjs */
 "use strict";
 const fs = require("fs"), path = require("path");
-const { ROOT, BASE, TRACKS, ROOMS } = require("./world.cjs");
-const posters = require(path.join(ROOT, "content", "posters.json")), teams = require(path.join(ROOT, "content", "teams.json"));
+const { ROOT, BASE, ROOMS, WALLS } = require("./world.cjs");
+const teams = require(path.join(ROOT, "content", "teams.json"));
 const OUT = path.join(ROOT, "pages");
 const esc = s => String(s).replace(/\s*[\u2014\u2013]\s*/g, ", ").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const CSS = `
@@ -21,68 +21,63 @@ p{margin:.5rem 0}a{color:var(--gold)}img{max-width:100%;height:auto;display:bloc
 ul{padding-left:1.2rem}li{margin:.3rem 0}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.6rem}
 table{border-collapse:collapse;width:100%;font-size:.95rem}td,th{text-align:left;padding:.4rem .5rem;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--dim);font-weight:600}
 .frame{border:1px solid var(--line);border-radius:8px;padding:6px;background:#fff}
+.fellows{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}.fellow{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:.3rem .6rem;font-size:.85rem}
 `;
 function shell(title, body, accent) { return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(title)}</title><style>${CSS}</style></head><body${accent ? ` style="--accent:${accent}"` : ""}>${body}<p class="fine" style="margin-top:2rem">PRISM open day · <a href="${BASE}/pages/directory.html">directory</a></p></body></html>`; }
 function write(rel, html) { const f = path.join(OUT, rel); fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, html); }
-const trackOf = k => TRACKS[k] || { name: k, color: "#e9b949" };
 
-/* posters */
-for (const p of posters) {
-  const t = trackOf(p.track);
-  write(`posters/${p.id}.html`, shell(p.title, `
-<p class="kicker">NeurIPS 2025 poster · <b>${esc(t.name)}</b> bay</p>
-<h1>${esc(p.title)}</h1>
-<p class="authors">${esc(p.authors.join(", "))}</p>
-<a href="${p.image}" target="_blank" rel="noopener" title="Open the poster full size in a new tab"><img src="${p.image}" alt="Poster: ${esc(p.title)}" loading="eager"></a>
-<p class="hint">Click the poster to open it full size in a new tab. Pinch or scroll to zoom there.</p>
-${p.abstract ? `<h2>Abstract</h2><p>${esc(p.abstract)}</p>` : ""}
-${p.keywords ? `<p class="fine">Topic: ${esc(p.keywords)}</p>` : ""}
-<p><a class="btn" href="${p.page}" target="_blank" rel="noopener">Open on neurips.cc</a></p>
-<p class="fine">The poster image is served by neurips.cc and belongs to its authors. It is shown here for the PRISM open day, with a link back to the original.</p>`, t.color));
-}
+// Wall colors from world.cjs
+const wallColor = wall => WALLS[wall] ? WALLS[wall].color : "#e9b949";
 
-/* teams */
+/* team pages */
 for (const tm of teams) {
-  const t = trackOf(tm.track);
+  const color = wallColor(tm.wall);
+  const fellowsHtml = tm.fellows && tm.fellows.length > 0
+    ? `<h2>Fellows</h2><div class="fellows">${tm.fellows.map(f => `<span class="fellow">${esc(f)}</span>`).join("")}</div>`
+    : "";
+  const coMentorHtml = tm.coMentor ? ` & ${esc(tm.coMentor)}` : "";
+
   write(`teams/${tm.slug}.html`, shell(tm.title, `
-<p class="kicker">PRISM 2026 team · <b>${esc(t.name)}</b></p>
+<p class="kicker">PRISM 2026 team · <b>${esc(tm.wall.toUpperCase())} WALL</b></p>
 <h1>${esc(tm.title)}</h1>
-<p class="authors">Mentor: ${esc(tm.mentor)} · ${esc(tm.theme)}</p>
+<p class="authors">Mentor: <b>${esc(tm.mentor)}${coMentorHtml}</b></p>
+${tm.affiliation ? `<p class="fine">${esc(tm.affiliation)}</p>` : ""}
+<h2>About this project</h2>
 <p>${esc(tm.blurb)}</p>
-<h2>Meet the team</h2>
-<p>Step inside the pod and press SPACE to join the team's call. The fellows will be in and out of their pod during the open day; the programme says when each team presents on the stage.</p>
-<p><a class="btn" href="${BASE}/pages/programme.html">Programme</a> <a class="btn" href="${BASE}/pages/directory.html">Directory</a></p>`, t.color));
+${fellowsHtml}
+<h2>Join the conversation</h2>
+<p>Walk into the poster's video zone to join the team's discussion. Multiple teams can present in parallel — each poster has its own isolated video bubble.</p>
+<p><a class="btn" href="${BASE}/pages/programme.html">Programme</a> <a class="btn" href="${BASE}/pages/directory.html">Directory</a></p>`, color));
 }
 
 /* directory */
-const byTrack = k => teams.filter(t => t.track === k), postersBy = k => posters.filter(p => p.track === k);
+const byWall = wall => teams.filter(t => t.wall === wall);
 write("directory.html", shell("Directory", `
 <p class="kicker">PRISM open day</p><h1>Directory</h1>
-<p>Five rooms, joined by doors. Walk onto a door mat to go through. Stand on a sign or a coloured strip and press SPACE to read.</p>
-${Object.keys(ROOMS).map(k => `<div class="card"><h3>${esc(ROOMS[k].name)}</h3><p>${esc(ROOMS[k].blurb)}</p></div>`).join("")}
-<h2>The four tracks</h2>
-${Object.keys(TRACKS).map(k => `<div class="card" style="--accent:${TRACKS[k].color}"><h3>${esc(TRACKS[k].name)}</h3><p>Teams: ${byTrack(k).map(t => esc(t.mentor)).join(", ") || "none"}</p><p>Posters in the hall: ${postersBy(k).length}</p></div>`).join("")}
+<p>A single poster hall with 12 PRISM teams presenting their research. Walk to any poster and press SPACE for details. Each poster has its own video zone for isolated conversations.</p>
+<div class="card"><h3>${esc(ROOMS.hall.name)}</h3><p>${esc(ROOMS.hall.blurb)}</p></div>
+<h2>Teams by Wall</h2>
+${["north", "east", "south", "west"].map(wall => `<div class="card" style="--accent:${wallColor(wall)}"><h3>${wall.charAt(0).toUpperCase() + wall.slice(1)} Wall</h3><p>${byWall(wall).map(t => `<b>${esc(t.mentor)}</b>: ${esc(t.title)}`).join("<br>")}</p></div>`).join("")}
 <h2>Tips</h2>
-<ul><li>Arrow keys or WASD to walk. Walk up to someone and your cameras connect.</li><li>SPACE opens whatever the prompt at the bottom of the screen offers.</li><li>The auditorium puts everyone in the seats into one call, so mute when you are not speaking.</li><li>The quiet room in the lounge keeps microphones off.</li></ul>`));
+<ul><li>Arrow keys or WASD to walk. Walk up to someone and your cameras connect.</li><li>SPACE opens the team details panel when standing near a poster.</li><li>Each poster has its own Jitsi video zone — teams can present in parallel without interference.</li><li>You spawn in the center of the hall with quick access to any poster.</li></ul>`));
 
 /* programme */
-const sorted = [...teams].sort((a, b) => ["technical", "evals", "frontier", "governance"].indexOf(a.track) - ["technical", "evals", "frontier", "governance"].indexOf(b.track));
+const sortedByWall = ["north", "east", "south", "west"].flatMap(wall => byWall(wall));
 write("programme.html", shell("Programme", `
 <p class="kicker">PRISM open day</p><h1>Programme</h1>
-<p>The running order for the day. Times will be confirmed by the PRISM team; the shape of the day is set.</p>
+<p>The running order for the poster session. All 12 teams present in parallel — visit any poster to join that team's discussion.</p>
 <table><tr><th>Block</th><th>What happens</th><th>Where</th></tr>
-<tr><td>Doors open</td><td>Arrive, pick an avatar, find the welcome desk.</td><td>Lobby</td></tr>
-<tr><td>Opening</td><td>Welcome from the PRISM programme team and what the cohort set out to do.</td><td>Auditorium</td></tr>
-<tr><td>Cohort showcase</td><td>Each of the twelve teams presents for fifteen minutes, in track order.</td><td>Auditorium</td></tr>
-<tr><td>Poster session</td><td>Walk the NeurIPS 2025 posters that shaped the teams' methods. Fellows are on hand by the boards of their track.</td><td>Poster hall</td></tr>
-<tr><td>Office hours</td><td>Every team is in its pod. Step in and press SPACE to join the conversation.</td><td>Team rooms</td></tr>
-<tr><td>Closing</td><td>What comes next for the papers and for PRISM.</td><td>Auditorium</td></tr></table>
-<h2>Showcase order</h2>
-<ol>${sorted.map(t => `<li><b>${esc(t.mentor)}</b>: ${esc(t.title)} <span class="fine">(${esc(trackOf(t.track).name)})</span></li>`).join("")}</ol>`));
+<tr><td>Doors open</td><td>Arrive in the poster hall, pick an avatar.</td><td>Poster Hall</td></tr>
+<tr><td>Opening</td><td>Welcome from the PRISM programme team.</td><td>Zoom (link shared separately)</td></tr>
+<tr><td>Poster session</td><td>All 12 teams present in parallel. Walk to any poster and join the conversation.</td><td>Poster Hall</td></tr>
+<tr><td>Closing</td><td>What comes next for the papers and for PRISM.</td><td>Zoom (link shared separately)</td></tr></table>
+<h2>Teams presenting</h2>
+<table><tr><th>Wall</th><th>Mentor</th><th>Project</th></tr>
+${sortedByWall.map(t => `<tr><td style="color:${wallColor(t.wall)}">${t.wall.charAt(0).toUpperCase() + t.wall.slice(1)}</td><td>${esc(t.mentor)}</td><td>${esc(t.title)}</td></tr>`).join("")}</table>`));
 
 /* about */
 write("about.html", shell("About PRISM", `
-<p class="kicker">Welcome desk</p><h1>What PRISM is</h1>
+<p class="kicker">Welcome</p><h1>What PRISM is</h1>
 <p><b>PRISM</b> is the Peer-vetted Research Initiative for Safety Methodologies: a sixteen-week AI safety research fellowship run by <a href="https://w2d2.org" target="_blank" rel="noopener">Women Who Do Data</a>. Teams of four fellows work with one senior mentor each, and the whole programme is built backwards from one goal: a paper submitted to a conference by week sixteen.</p>
 <h2>How a team works</h2>
 <ul><li><b>Weeks one and two:</b> a distributed literature review. Each fellow reads a few papers deeply and teaches them to the team.</li>
@@ -91,27 +86,15 @@ write("about.html", shell("About PRISM", `
 <li><b>Week six onwards:</b> pairs run experiments in parallel and present to each other every week.</li>
 <li><b>All the way through:</b> contribution is tracked from day one and shown to everyone, so authorship is never a surprise at the end.</li></ul>
 <h2>The 2026 cohort</h2>
-<p>Twelve mentor projects across four tracks: Technical Safety, Risks and Evaluations, Frontier Risks, and Governance. Around eight hundred people applied, three quarters of them women, from every continent. The cohort started in June 2026.</p>
+<p>Twelve mentor projects exploring AI safety across interpretability, evaluations, control, and governance. Around eight hundred people applied, three quarters of them women, from every continent. The cohort started in June 2026.</p>
 <p><a class="btn" href="https://prism-research.org" target="_blank" rel="noopener">prism-research.org</a> <a class="btn" href="${BASE}/pages/directory.html">Directory</a></p>`));
-
-/* reading list */
-write("reading.html", shell("Reading list", `
-<p class="kicker">Quiet room</p><h1>Reading list</h1>
-<p>Every poster hanging in the hall, by bay. Each link opens the poster page on neurips.cc in a new tab.</p>
-${Object.keys(TRACKS).map(k => `<h2 style="color:${TRACKS[k].color}">${esc(TRACKS[k].name)}</h2><ul>${postersBy(k).map(p => `<li><a href="${p.page}" target="_blank" rel="noopener">${esc(p.title)}</a><br><span class="fine">${esc(p.authors.slice(0, 4).join(", "))}${p.authors.length > 4 ? " and others" : ""}</span></li>`).join("")}</ul>`).join("")}`));
 
 /* get involved */
 write("join.html", shell("Get involved", `
-<p class="kicker">Lounge</p><h1>Get involved with PRISM</h1>
+<p class="kicker">PRISM</p><h1>Get involved with PRISM</h1>
 <div class="card"><h3>Apply as a fellow</h3><p>The next call opens on <a href="https://prism-research.org" target="_blank" rel="noopener">prism-research.org</a>. Twenty hours a week for sixteen weeks, remote, with a real paper at the end.</p></div>
 <div class="card"><h3>Mentor a team</h3><p>Mentors bring a project and meet their team weekly. Write to <a href="mailto:support@prism-research.org">support@prism-research.org</a>.</p></div>
 <div class="card"><h3>Volunteer</h3><p>Programme support volunteers keep the cohort running: onboarding, tooling, reviews. Same address.</p></div>
 <div class="card"><h3>Women Who Do Data</h3><p>PRISM is a W2D2 programme. See <a href="https://w2d2.org" target="_blank" rel="noopener">w2d2.org</a> for everything else the community does.</p></div>`));
 
-/* coffee */
-write("coffee.html", shell("Coffee", `
-<p class="kicker">Lounge</p><h1>The coffee machine</h1>
-<p>It is a picture of a coffee machine. Go and make a real one, then come back: the sofas are a good place to catch a fellow between talks.</p>
-<p class="fine">Tip: walk up to someone and your cameras connect. Up to four people share one bubble.</p>`));
-
-console.log("pages:", posters.length, "posters,", teams.length, "teams, and 7 fixed pages in", path.relative(ROOT, OUT));
+console.log("pages:", teams.length, "teams and 4 fixed pages in", path.relative(ROOT, OUT));
