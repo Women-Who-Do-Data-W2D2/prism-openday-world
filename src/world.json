@@ -2,17 +2,17 @@
  "base": "https://Women-Who-Do-Data-W2D2.github.io/prism-openday-world",
  "zones": {
   "hall": "Welcome to the PRISM Poster Hall. Walk to a poster and press SPACE for details.",
-  "team-rachel-freedman": "Rachel Freedman's team: Interpreting Personalized Reward Model Bases",
-  "team-manjari-narayan": "Manjari Narayan's team: Interpretability for Scientific Causal Reasoning",
-  "team-aviram-berg": "Aviram Berg's team: Do Rules and Concepts Hold Across Languages?",
-  "team-rubi-hudson": "Rubi Hudson's team: Preference Drift in Language Models",
-  "team-naiyarah-hussain": "Naiyarah Hussain's team: Multilingual Safety Evals",
-  "team-ayodeji-ibitoye": "Ayodeji Ibitoye's team: Decision Update Consistency in LLMs",
-  "team-aryan-agarwal": "Aryan Agarwal's team: How AI Labs Redefine Safety",
-  "team-branwen-owen": "Branwen Owen's team: Estimating Harm and Exposure for AI Harm Monitoring",
-  "team-zeenath-reza-khan": "Zeenath Reza Khan's team: Trust Calibration in Healthcare AI",
-  "team-preeti-ravindra": "Preeti Ravindra's team: Synchronous Monitoring for AI Control",
-  "team-jobst-heitzig": "Jobst Heitzig's team: Grounding Safe-by-Design AI",
-  "team-jeyashree-krishnan": "Jeyashree Krishnan's team: Red-Teaming Protein Foundation Models"
+  "team-rachel-freedman": "You joined the call at Rachel Freedman's poster: Interpreting Personalized Reward Model Bases",
+  "team-manjari-narayan": "You joined the call at Manjari Narayan's poster: Interpretability for Scientific Causal Reasoning",
+  "team-aviram-berg": "You joined the call at Aviram Berg's poster: Do Rules and Concepts Hold Across Languages?",
+  "team-rubi-hudson": "You joined the call at Rubi Hudson's poster: Preference Drift in Language Models",
+  "team-naiyarah-hussain": "You joined the call at Naiyarah Hussain's poster: Multilingual Safety Evals",
+  "team-ayodeji-ibitoye": "You joined the call at Ayodeji Ibitoye's poster: Decision Update Consistency in LLMs",
+  "team-aryan-agarwal": "You joined the call at Aryan Agarwal's poster: How AI Labs Redefine Safety",
+  "team-branwen-owen": "You joined the call at Branwen Owen's poster: Estimating Harm and Exposure for AI Harm Monitoring",
+  "team-zeenath-reza-khan": "You joined the call at Zeenath Reza Khan's poster: Trust Calibration in Healthcare AI",
+  "team-preeti-ravindra": "You joined the call at Preeti Ravindra's poster: Synchronous Monitoring for AI Control",
+  "team-jobst-heitzig": "You joined the call at Jobst Heitzig's poster: Grounding Safe-by-Design AI",
+  "team-jeyashree-krishnan": "You joined the call at Jeyashree Krishnan's poster: Red-Teaming Protein Foundation Models"
  }
 }

@@ -12,7 +12,9 @@ lists all twelve teams.
 
 ## The poster hall
 
-A single 28×28-tile room with all twelve PRISM teams on four colour-coded walls:
+A single 48×44-tile room with all twelve PRISM teams on four colour-coded walls.
+
+Every poster has its own video call. The tinted floor in front of each board is that poster's call area: step onto it and you join the team's call, step off and you leave. Call areas are 6 by 4 tiles and sit at least three tiles from each other, corners included, so neighbouring conversations never overlap. `scripts/build-maps.cjs` refuses to build if two call areas come closer than that. You spawn in the middle, outside every call.
 
 ```
                ┌─────────────────────────────────┐

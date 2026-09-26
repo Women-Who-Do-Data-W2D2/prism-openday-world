@@ -41,6 +41,9 @@ T.EMPTY = A.one(blank()); T.COLLIDE = A.one(blank()); T.ZONE = A.one(blank()); T
 // Hall floor tiles
 const floors = {}, faces = {};
 floors.hall = [A.one(floorTile(ROOMS.hall.floor[0], 1)), A.one(floorTile(ROOMS.hall.floor[1], 2))];
+/* a tinted floor per wall colour, laid under each poster's call area so visitors can see where the call starts */
+const callFloors = {};
+for (const w in WALLS) callFloors[w] = A.one(floorTile(mix(WALLS[w].color, "#ffffff", 0.72), 7));
 
 T.WALL_TOP = A.one(blank().rect(0, 0, SIZE, SIZE, WALLTOP).rect(0, 0, SIZE, 2, tint(WALLTOP, 0.2)).rect(0, SIZE - 2, SIZE, 2, shade(WALLTOP, 0.4)).grain(2, 5));
 
@@ -121,6 +124,7 @@ function whiteboard() { const s = sprite(2, 1); s.rect(2, 2, 60, 26, "#c9ccd2").
   }
 
   const out = {
+    callFloors,
     file: "../tilesets/prism.png",
     cols: A.cols,
     width: A.width,
