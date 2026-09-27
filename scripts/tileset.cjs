@@ -117,6 +117,10 @@ function whiteboard() { const s = sprite(2, 1); s.rect(2, 2, 60, 26, "#c9ccd2").
   // Wall signs - minimal for hall
   const wallsigns = {};
 
+  // "View poster" plates, one per wall colour, placed beside each board
+  const viewSigns = {};
+  for (const w in WALLS) viewSigns[w] = A.add(plate(["VIEW", "POSTER"], 2, 2, { scales: [2, 2], colors: [GOLD, PAPER], edge: WALLS[w].color }));
+
   // Team poster boards
   const boards = {};
   for (const t of teams) {
@@ -135,6 +139,7 @@ function whiteboard() { const s = sprite(2, 1); s.rect(2, 2, 60, 26, "#c9ccd2").
     faces,
     furniture,
     banners,
+    viewSigns,
     boards
   };
 

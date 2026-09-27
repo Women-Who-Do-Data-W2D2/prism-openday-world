@@ -14,5 +14,19 @@
   "team-preeti-ravindra": "You joined the call at Preeti Ravindra's poster: Synchronous Monitoring for AI Control",
   "team-jobst-heitzig": "You joined the call at Jobst Heitzig's poster: Grounding Safe-by-Design AI",
   "team-jeyashree-krishnan": "You joined the call at Jeyashree Krishnan's poster: Red-Teaming Protein Foundation Models"
+ },
+ "posters": {
+  "team-rachel-freedman": "https://Women-Who-Do-Data-W2D2.github.io/prism-openday-world/pages/posters/rachel-freedman.html",
+  "team-manjari-narayan": "https://Women-Who-Do-Data-W2D2.github.io/prism-openday-world/pages/posters/manjari-narayan.html",
+  "team-aviram-berg": "https://Women-Who-Do-Data-W2D2.github.io/prism-openday-world/pages/posters/aviram-berg.html",
+  "team-rubi-hudson": "https://Women-Who-Do-Data-W2D2.github.io/prism-openday-world/pages/posters/rubi-hudson.html",
+  "team-naiyarah-hussain": "https://Women-Who-Do-Data-W2D2.github.io/prism-openday-world/pages/posters/naiyarah-hussain.html",
+  "team-ayodeji-ibitoye": "https://Women-Who-Do-Data-W2D2.github.io/prism-openday-world/pages/posters/ayodeji-ibitoye.html",
+  "team-aryan-agarwal": "https://Women-Who-Do-Data-W2D2.github.io/prism-openday-world/pages/posters/aryan-agarwal.html",
+  "team-branwen-owen": "https://Women-Who-Do-Data-W2D2.github.io/prism-openday-world/pages/posters/branwen-owen.html",
+  "team-zeenath-reza-khan": "https://Women-Who-Do-Data-W2D2.github.io/prism-openday-world/pages/posters/zeenath-reza-khan.html",
+  "team-preeti-ravindra": "https://Women-Who-Do-Data-W2D2.github.io/prism-openday-world/pages/posters/preeti-ravindra.html",
+  "team-jobst-heitzig": "https://Women-Who-Do-Data-W2D2.github.io/prism-openday-world/pages/posters/jobst-heitzig.html",
+  "team-jeyashree-krishnan": "https://Women-Who-Do-Data-W2D2.github.io/prism-openday-world/pages/posters/jeyashree-krishnan.html"
  }
 }

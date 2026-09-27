@@ -29,6 +29,17 @@ function write(rel, html) { const f = path.join(OUT, rel); fs.mkdirSync(path.dir
 // Wall colors from world.cjs
 const wallColor = wall => WALLS[wall] ? WALLS[wall].color : "#e9b949";
 
+/* poster viewers: just the poster, as large as the panel allows */
+for (const tm of teams) {
+  const has = fs.existsSync(path.join(OUT, "posters", tm.slug + ".jpg"));
+  write(`posters/${tm.slug}.html`, shell("Poster: " + tm.title, `
+<p class="kicker">Poster · <b>${esc(tm.mentor)}'s team</b></p>
+<h1>${esc(tm.title)}</h1>
+${has ? `<a href="${tm.slug}.jpg" target="_blank" rel="noopener" title="Open full size in a new tab"><img src="${tm.slug}.jpg" alt="Poster: ${esc(tm.title)}" style="width:100%;height:auto;border-radius:6px;background:#fff"></a>
+<p class="fine">Click the poster to open it full size in a new tab, where you can zoom.</p>` : `<p>This team's poster has not been submitted yet. Walk onto the tinted floor in front of the board to talk to the team.</p>`}
+<p><a class="btn" href="../teams/${tm.slug}.html">About the project</a></p>`, wallColor(tm.wall)));
+}
+
 /* team pages */
 for (const tm of teams) {
   const color = wallColor(tm.wall);

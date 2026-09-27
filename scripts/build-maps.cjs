@@ -83,6 +83,16 @@ function hall() {
     /* the SPACE spot is the row or column touching the board */
     const near = t.wall === "north" ? [bx, by + BOARD_H, BOARD_W, 1] : t.wall === "south" ? [bx, by - 1, BOARD_W, 1] : t.wall === "west" ? [bx + BOARD_W, by, 1, BOARD_H] : [bx - 1, by, 1, BOARD_H];
     r.website("poster-" + t.slug, ...near, BASE + "/pages/teams/" + t.slug + ".html", "Press SPACE to read about " + label);
+    /* a VIEW POSTER plate beside the board, with its own SPACE spot: right of the board on the
+       north and south walls, below it on the west and east walls */
+    const sign = TS.viewSigns && TS.viewSigns[t.wall];
+    const [sx, sy, px, py, pw, ph] =
+      t.wall === "north" ? [bx + BOARD_W, by + 1, bx + BOARD_W, by + BOARD_H, 2, 1] :
+      t.wall === "south" ? [bx + BOARD_W, by + 1, bx + BOARD_W, by, 2, 1] :
+      t.wall === "west"  ? [bx, by + BOARD_H, bx + 2, by + BOARD_H, 1, 2] :
+                           [bx + BOARD_W - 2, by + BOARD_H, bx + BOARD_W - 3, by + BOARD_H, 1, 2];
+    if (sign) r.grid("props", sign, sx, sy, true);
+    r.website("view-" + t.slug, px, py, pw, ph, BASE + "/pages/posters/" + t.slug + ".html", "Press SPACE to view the poster: " + short(t.title, 50), 70);
     r.jitsi("call-" + t.slug, zx, zy, zw, zh, "PRISM-poster-" + t.slug);
     r.zone("team-" + t.slug, zx, zy, zw, zh);
     calls.push({ slug: t.slug, x0: zx, y0: zy, x1: zx + zw - 1, y1: zy + zh - 1 });
@@ -121,5 +131,6 @@ for (const key in built) {
 const zones = { hall: "Welcome to the PRISM Poster Hall. Walk to a poster and press SPACE for details." };
 for (const t of teams) zones["team-" + t.slug] = "You joined the call at " + t.mentor + "'s poster: " + t.title;
 fs.mkdirSync(path.join(ROOT, "src"), { recursive: true });
-fs.writeFileSync(path.join(ROOT, "src", "world.json"), JSON.stringify({ base: BASE, zones }, null, 1));
+const posters = {}; for (const t of teams) posters["team-" + t.slug] = BASE + "/pages/posters/" + t.slug + ".html";
+fs.writeFileSync(path.join(ROOT, "src", "world.json"), JSON.stringify({ base: BASE, zones, posters }, null, 1));
 console.table(summary); console.log("teams:", teams.length, "· pages base:", BASE);
