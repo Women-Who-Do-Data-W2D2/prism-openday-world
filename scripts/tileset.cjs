@@ -121,6 +121,17 @@ function whiteboard() { const s = sprite(2, 1); s.rect(2, 2, 60, 26, "#c9ccd2").
   const viewSigns = {};
   for (const w in WALLS) viewSigns[w] = A.add(plate(["VIEW", "POSTER"], 2, 2, { scales: [2, 2], colors: [GOLD, PAPER], edge: WALLS[w].color }));
 
+  // "View poster" floor mats: a walkable strip along the front edge of each call area.
+  // Each tile shows a small poster with an eye-level "VIEW" label, in the wall colour.
+  const viewMats = {};
+  for (const w in WALLS) {
+    const c = WALLS[w].color, s = new Sprite(SIZE, SIZE);
+    s.rect(0, 0, SIZE, SIZE, mix(c, "#ffffff", 0.45)).frame(0, 0, SIZE, SIZE, shade(c, 0.15)).frame(1, 1, SIZE - 2, SIZE - 2, mix(c, "#ffffff", 0.2));
+    s.rect(10, 4, 12, 15, "#ffffff").frame(10, 4, 12, 15, shade(c, 0.35)).rect(12, 7, 8, 1, shade(c, 0.3)).rect(12, 10, 8, 1, shade(c, 0.3)).rect(12, 13, 5, 1, shade(c, 0.3));
+    font.draw(s, 16, 22, "VIEW", { scale: 1, color: INK, align: "center" });
+    viewMats[w] = A.one(s);
+  }
+
   // Team poster boards
   const boards = {};
   for (const t of teams) {
@@ -140,6 +151,7 @@ function whiteboard() { const s = sprite(2, 1); s.rect(2, 2, 60, 26, "#c9ccd2").
     furniture,
     banners,
     viewSigns,
+    viewMats,
     boards
   };
 

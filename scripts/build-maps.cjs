@@ -74,7 +74,7 @@ function hall() {
 
   const across = [13, 22, 31];     /* board x on the north and south walls: call areas x 12-17, 21-26, 30-35 */
   const down = [13, 21, 29];       /* board y on the west and east walls:  call areas y 12-16, 20-24, 28-32 */
-  const calls = [];
+  const calls = [], views = [];
   function poster(t, bx, by, zone) {
     if (TS.boards && TS.boards[t.slug]) r.grid("walls", TS.boards[t.slug], bx, by, true);
     const [zx, zy, zw, zh] = zone, tile = TS.callFloors && TS.callFloors[t.wall];
@@ -83,16 +83,17 @@ function hall() {
     /* the SPACE spot is the row or column touching the board */
     const near = t.wall === "north" ? [bx, by + BOARD_H, BOARD_W, 1] : t.wall === "south" ? [bx, by - 1, BOARD_W, 1] : t.wall === "west" ? [bx + BOARD_W, by, 1, BOARD_H] : [bx - 1, by, 1, BOARD_H];
     r.website("poster-" + t.slug, ...near, BASE + "/pages/teams/" + t.slug + ".html", "Press SPACE to read about " + label);
-    /* a VIEW POSTER plate beside the board, with its own SPACE spot: right of the board on the
-       north and south walls, below it on the west and east walls */
-    const sign = TS.viewSigns && TS.viewSigns[t.wall];
-    const [sx, sy, px, py, pw, ph] =
-      t.wall === "north" ? [bx + BOARD_W, by + 1, bx + BOARD_W, by + BOARD_H, 2, 1] :
-      t.wall === "south" ? [bx + BOARD_W, by + 1, bx + BOARD_W, by, 2, 1] :
-      t.wall === "west"  ? [bx, by + BOARD_H, bx + 2, by + BOARD_H, 1, 2] :
-                           [bx + BOARD_W - 2, by + BOARD_H, bx + BOARD_W - 3, by + BOARD_H, 1, 2];
-    if (sign) r.grid("props", sign, sx, sy, true);
-    r.website("view-" + t.slug, px, py, pw, ph, BASE + "/pages/posters/" + t.slug + ".html", "Press SPACE to view the poster: " + short(t.title, 50), 70);
+    /* the VIEW POSTER strip runs along the front edge of the call area, on the side facing the
+       middle of the hall: visitors stop there, read the poster, then step forward into the call */
+    const [vx, vy, vw, vh] =
+      t.wall === "north" ? [zx, zy + zh, zw, 1] :
+      t.wall === "south" ? [zx, zy - 1, zw, 1] :
+      t.wall === "west"  ? [zx + zw, zy, 1, zh] :
+                           [zx - 1, zy, 1, zh];
+    const mat = TS.viewMats && TS.viewMats[t.wall];
+    if (mat) for (let j = 0; j < vh; j++) for (let i = 0; i < vw; i++) r.set("decor", vx + i, vy + j, mat);
+    r.website("view-" + t.slug, vx, vy, vw, vh, BASE + "/pages/posters/" + t.slug + ".html", "Press SPACE to read the poster: " + short(t.title, 50) + ". Step forward to join the team's call.", 70);
+    views.push({ slug: t.slug, x0: vx, y0: vy, x1: vx + vw - 1, y1: vy + vh - 1 });
     r.jitsi("call-" + t.slug, zx, zy, zw, zh, "PRISM-poster-" + t.slug);
     r.zone("team-" + t.slug, zx, zy, zw, zh);
     calls.push({ slug: t.slug, x0: zx, y0: zy, x1: zx + zw - 1, y1: zy + zh - 1 });
@@ -108,6 +109,9 @@ function hall() {
     const a = calls[i], b = calls[j], dx = Math.max(0, b.x0 - a.x1 - 1, a.x0 - b.x1 - 1), dy = Math.max(0, b.y0 - a.y1 - 1, a.y0 - b.y1 - 1);
     if (Math.max(dx, dy) < GAP) { console.error("CALL AREAS TOO CLOSE:", a.slug, "and", b.slug, "gap", Math.max(dx, dy)); process.exit(1); }
   }
+
+  /* no VIEW POSTER strip may sit inside any call area, or on the spawn */
+  for (const v of views) for (const c of calls) if (v.x1 >= c.x0 && v.x0 <= c.x1 && v.y1 >= c.y0 && v.y0 <= c.y1) { console.error("VIEW STRIP INSIDE A CALL:", v.slug, "in", c.slug); process.exit(1); }
 
   r.plants([[1, 3], [W - 2, 3], [1, H - 2], [W - 2, H - 2]]);
   const sx = Math.floor(W / 2) - 1, sy = Math.floor(H / 2);
