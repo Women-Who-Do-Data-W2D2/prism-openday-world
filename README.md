@@ -4,7 +4,11 @@ A walk-around venue for the PRISM open day, built on [WorkAdventure](https://wor
 PRISM is the Peer-vetted Research Initiative for Safety Methodologies, a sixteen-week
 AI safety research fellowship run by [Women Who Do Data](https://w2d2.org).
 
-**Play it:** https://play.workadventu.re/_/global/Women-Who-Do-Data-W2D2.github.io/prism-openday-world/maps/hall.tmj
+**Play it:** https://178-105-222-101.sslip.io/ (the self-hosted server on Hetzner, no visitor cap).
+
+A second copy runs on WorkAdventure's free hosted plan, capped at ten visitors at a time:
+https://play.workadventu.re/_/global/Women-Who-Do-Data-W2D2.github.io/prism-openday-world/maps/hall.tmj.
+It updates from GitHub Pages on every push to `main`. The server copy does not: see "Updating the server" below.
 
 Arrow keys or WASD to walk. Walk up to someone and your cameras connect. Stand on a poster
 board and press SPACE to open the team's project page. The Directory button at the bottom
@@ -145,3 +149,23 @@ The Hetzner recipe (one small server, about 8 EUR a month) lives in the museum w
 Code MIT (`LICENSE.code`). Maps CC BY 4.0. The generated tileset is CC0, except the poster
 thumbnails painted into it, which belong to their authors and are shown with a link back to
 neurips.cc. Poster pages embed the poster image served by neurips.cc; nothing is re-hosted.
+
+## Updating the server
+
+The server keeps its own copy of the hall in WorkAdventure's map storage, so pushing to GitHub does not
+change it. After a change, build with the pages pointed at the server and upload:
+
+```sh
+export PAGES_BASE=https://178-105-222-101.sslip.io/map-storage/prism
+node scripts/build-maps.cjs && node scripts/build-pages.cjs && npm run build
+(cd dist && zip -qr ../dist.zip .)
+curl -H "Authorization: Bearer $MAP_STORAGE_API_KEY" -F directory=prism -F file=@dist.zip \
+  https://178-105-222-101.sslip.io/map-storage/upload
+unset PAGES_BASE && node scripts/build-maps.cjs && node scripts/build-pages.cjs   # back to the GitHub Pages build
+```
+
+The upload key is `MAP_STORAGE_API_TOKEN` in `/opt/workadventure/.env` on the server; ask Archana.
+
+Video calls in the poster areas use Element's public Jitsi (`JITSI_URL=meet.element.io` on the server),
+which needs no login. Each call area passes a Jitsi config that skips the join screen and hides the
+lobby and moderator controls, so anyone can walk in and out.
