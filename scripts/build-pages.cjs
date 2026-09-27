@@ -42,11 +42,12 @@ for (const tm of teams) {
 <h1>${esc(tm.title)}</h1>
 <p class="authors">Mentor: <b>${esc(tm.mentor)}${coMentorHtml}</b></p>
 ${tm.affiliation ? `<p class="fine">${esc(tm.affiliation)}</p>` : ""}
+${fs.existsSync(path.join(OUT, "posters", tm.slug + ".jpg")) ? `<h2>Poster</h2><a href="../posters/${tm.slug}.jpg" target="_blank" rel="noopener" title="Open the poster full size in a new tab"><img src="../posters/${tm.slug}.jpg" alt="Poster: ${esc(tm.title)}" style="max-width:100%;height:auto;border-radius:6px;background:#fff"></a><p class="fine">Click the poster to open it full size in a new tab.</p>` : ""}
 <h2>About this project</h2>
 <p>${esc(tm.blurb)}</p>
 ${fellowsHtml}
 <h2>Join the conversation</h2>
-<p>Walk into the poster's video zone to join the team's discussion. Multiple teams can present in parallel — each poster has its own isolated video bubble.</p>
+<p>Walk into the poster's video zone to join the team's discussion. Multiple teams can present in parallel Each poster has its own isolated video call.</p>
 <p><a class="btn" href="${BASE}/pages/programme.html">Programme</a> <a class="btn" href="${BASE}/pages/directory.html">Directory</a></p>`, color));
 }
 
@@ -59,7 +60,7 @@ write("directory.html", shell("Directory", `
 <h2>Teams by Wall</h2>
 ${["north", "east", "south", "west"].map(wall => `<div class="card" style="--accent:${wallColor(wall)}"><h3>${wall.charAt(0).toUpperCase() + wall.slice(1)} Wall</h3><p>${byWall(wall).map(t => `<b>${esc(t.mentor)}</b>: ${esc(t.title)}`).join("<br>")}</p></div>`).join("")}
 <h2>Tips</h2>
-<ul><li>Arrow keys or WASD to walk. Walk up to someone and your cameras connect.</li><li>SPACE opens the team details panel when standing near a poster.</li><li>Each poster has its own Jitsi video zone — teams can present in parallel without interference.</li><li>You spawn in the center of the hall with quick access to any poster.</li></ul>`));
+<ul><li>Arrow keys or WASD to walk. Walk up to someone and your cameras connect.</li><li>SPACE opens the team details panel when standing near a poster.</li><li>Each poster has its own video call, so teams can present in parallel without interference.</li><li>You spawn in the center of the hall with quick access to any poster.</li></ul>`));
 
 /* programme */
 const sortedByWall = ["north", "east", "south", "west"].flatMap(wall => byWall(wall));

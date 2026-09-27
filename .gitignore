@@ -31,3 +31,5 @@ maps/*-preview.png
 
 # Claude Code settings (local only)
 .claude/
+# posters dropped in for import; the placed copies in content/posters and pages/posters are committed
+content/posters-inbox/

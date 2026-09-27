@@ -47,6 +47,19 @@ The map file is `maps/hall.tmj`.
 
 ![The poster hall](docs/previews/hall.png)
 
+## Putting up the teams' posters
+
+1. Put one file per team in `content/posters-inbox/`: a PDF, PNG or JPG, with the mentor's surname
+   somewhere in the name (`Freedman.pdf`, `poster-hudson-final.png`, `rachel-freedman.jpg` all work).
+2. Run `npm run place-posters`. It lists every team as placed or missing, and any file it could not match.
+3. Look at `docs/previews/hall.png` (after `npm run previews`), commit, push.
+
+Each poster then appears as the thumbnail on that team's wall board, and in full on the team's
+page, which opens when a visitor presses SPACE at the board. PDFs are rendered from their first
+page, so export single-page posters. Posters exported from Canva or Google Slides as PDF work as
+they are. The inbox folder is not committed; the placed copies in `content/posters/` and
+`pages/posters/` are.
+
 ## How it is made
 
 Nothing here is drawn by hand. Three content files drive everything:
