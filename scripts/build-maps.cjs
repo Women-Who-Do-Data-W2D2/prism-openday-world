@@ -66,7 +66,7 @@ const F = TS.furniture || {};
    neighbouring conversations never overlap and there is room to walk
    between them. The centre, where visitors spawn, is outside every call. */
 function hall() {
-  const W = 48, H = 44, BOARD_W = 4, BOARD_H = 3, DEPTH = 4;
+  const W = 48, H = 44, BOARD_W = 4, BOARD_H = 5, DEPTH = 4;   /* boards are 4 by 5: a 2-tile name band over a 4 by 3 poster */
   const r = new Room("hall", W, H);
   r.floor(1, 3, W - 2, H - 4); r.box(0, 0, W, H, 2);
   if (TS.banners && TS.banners.hall) r.grid("decor", TS.banners.hall, Math.floor(W / 2) - 3, Math.floor(H / 2) - 4);
@@ -76,7 +76,7 @@ function hall() {
   for (const w of Object.keys(byWall)) byWall[w].sort((a, b) => a.position - b.position);
 
   const across = [13, 22, 31];     /* board x on the north and south walls: call areas x 12-17, 21-26, 30-35 */
-  const down = [13, 21, 29];       /* board y on the west and east walls:  call areas y 12-16, 20-24, 28-32 */
+  const down = [10, 20, 30];       /* board y on the west and east walls:  call areas y 9-15, 19-25, 29-35 */
   const calls = [], views = [];
   function poster(t, bx, by, zone) {
     if (TS.boards && TS.boards[t.slug]) r.grid("walls", TS.boards[t.slug], bx, by, true);
