@@ -77,7 +77,7 @@ ${["north", "east", "south", "west"].map(wall => `<div class="card" style="--acc
 const sortedByWall = ["north", "east", "south", "west"].flatMap(wall => byWall(wall));
 write("programme.html", shell("Programme", `
 <p class="kicker">PRISM open day</p><h1>Programme</h1>
-<p>The running order for the poster session. All 12 teams present in parallel — visit any poster to join that team's discussion.</p>
+<p>The running order for the poster session. All 12 teams present in parallel. Visit any poster to join that team's discussion.</p>
 <table><tr><th>Block</th><th>What happens</th><th>Where</th></tr>
 <tr><td>Doors open</td><td>Arrive in the poster hall, pick an avatar.</td><td>Poster Hall</td></tr>
 <tr><td>Opening</td><td>Welcome from the PRISM programme team.</td><td>Zoom (link shared separately)</td></tr>
