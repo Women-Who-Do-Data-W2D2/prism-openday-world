@@ -227,7 +227,7 @@ curl -s -o /dev/null -w '%{http_code}\n' https://meet.element.io/
 If you have SSH access (section 2), two more:
 
 ```sh
-# 8. All seven services are running.                    Expect: 7 lines, each "Up", four of them "(healthy)"
+# 8. All seven services are running.                    Expect: 7 lines, each "Up", three of them "(healthy)"
 ssh root@178.105.222.101 'cd /opt/workadventure && docker compose ps --format "{{.Name}} {{.Status}}"'
 
 # 9. The key settings are as documented in section 6.   Expect: DOMAIN=178-105-222-101.sslip.io, START_ROOM_URL=/~/prism/maps/hall.wam,
