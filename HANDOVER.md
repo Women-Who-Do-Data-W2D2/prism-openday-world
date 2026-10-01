@@ -14,7 +14,7 @@ breaks. No passwords or keys are in this file; it says where each one lives.
 | Open pull request #2 | branch `spaced-poster-calls` | Everything since 25 September: spaced call areas, real posters, name bands, view-poster strips, freeform calls. **The server already runs this branch.** `main` is behind it. |
 | GitHub Pages copy | women-who-do-data-w2d2.github.io/prism-openday-world | Built from `main` on every push. Holds the map files for the hosted copy below. |
 | Hosted copy | play.workadventu.re/_/global/Women-Who-Do-Data-W2D2.github.io/prism-openday-world/maps/hall.tmj | WorkAdventure's free plan, **10 visitors at a time**. Shows the old hall until PR #2 is merged. Do not share it for the event. |
-| The server | Hetzner Cloud, project `museum`, server `museum-play`, type cx23 (2 vCPU, 4 GB), Falkenstein, IPv4 178.105.222.101 | About 8 EUR a month. Owned by Archana's Hetzner account. |
+| The server | Hetzner Cloud, project `Archana Vaidheeswaran`, server `museum-play`, type cx23 (2 vCPU, 4 GB), Falkenstein, IPv4 178.105.222.101 | About 8 EUR a month. Owned by Archana's Hetzner account. |
 | Video calls | Element's public Jitsi, meet.element.io | No login, no moderator, no time limit. Not ours, so it is a dependency. |
 | Crowd and call tests | github.com/varchanaiyer/prism-openday-loadtest (private) | GitHub Actions workflows that send headless visitors into the hall. |
 | Discord tools | github.com/varchanaiyer/prism-dashboard (private) | Workflows that read and post in the PRISM Discord through the PRISM bot: poster scan, search, send. |
@@ -31,7 +31,7 @@ Archana has to grant these. Ask for whichever you need.
 | **This repo** | Already an admin if you are AngC1998, Astha0024, ccstan99, LNRobertson or w2ariag; Ayesha-Imr can maintain. Others: Settings, Collaborators. | Change content and code, merge PR #2. |
 | **SSH to the server** | You send her your SSH **public** key (`~/.ssh/id_ed25519.pub`; create one with `ssh-keygen -t ed25519`). She appends it to `/root/.ssh/authorized_keys` on the server. | Change settings, restart, read logs. |
 | **Map upload key** | Lives on the server as `MAP_STORAGE_API_TOKEN` in `/opt/workadventure/.env`. Once you have SSH you can read it yourself. Never paste it in chat or commit it. | Upload a new version of the hall. |
-| **Hetzner Console** | Hetzner Cloud Console, project `museum`, Security, Members, invite by email. | Power-cycle, resize or delete the server, see billing. Only needed if SSH stops working. |
+| **Hetzner Console** | Hetzner Console (console.hetzner.cloud, not Hetzner Accounts), project `Archana Vaidheeswaran`, Security in the left sidebar, Members tab, Add member, role Member. | Power-cycle, resize or delete the server, see billing. Only needed if SSH stops working. |
 | Discord tools, test repo | Collaborator on the two private repos above. | Run the poster scan, search Discord, rerun the crowd test. |
 
 Connect to the server:
