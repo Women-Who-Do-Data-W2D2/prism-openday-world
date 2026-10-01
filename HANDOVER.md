@@ -171,7 +171,73 @@ Older versions of the file are kept as `.env.bak-YYYYMMDD*`. To roll back:
 | Server unreachable by SSH too | Hetzner Console: server `museum-play`, Power, Reset. |
 | meet.element.io down | Temporarily set `JITSI_URL=meet.jit.si` (works, but needs a logged-in moderator and cuts calls at 5 minutes), or self-host Jitsi or LiveKit on a second server. |
 
-## 8. Testing without other people
+## 8. Quick checks: is it working?
+
+Do these after any change, and on the morning of the event. Part A needs only a browser. Part B
+needs a terminal (Terminal on a Mac, PowerShell or Git Bash on Windows) and no access to anything.
+
+### A. In the browser, about five minutes
+
+Use Chrome or Edge. For the call tests you need two "people": a second browser profile, a private
+window in a different browser, or a phone.
+
+| # | Do this | You should see |
+|---|---|---|
+| 1 | Open https://178-105-222-101.sslip.io/ in a private window | Name screen, then avatar, then camera and microphone screen, then the poster hall. No error page, no certificate warning |
+| 2 | Look around the hall | Twelve boards, three per wall, each topped by the mentor's name in large letters on a dark band. A "PRISM POSTER SHOWCASE" sign in the middle. You start next to it |
+| 3 | Click **Directory** in the bottom bar | A side panel listing the twelve teams |
+| 4 | Walk to a strip of tiles marked VIEW in front of any call area and press SPACE | The poster opens full width in the side panel (or "not been submitted yet" for teams without one). Click it to open full size |
+| 5 | Step onto the tinted floor in front of a board | A banner names the team, and a video call opens on the right **straight away**: no "Join meeting" button, no lobby, no moderator or login screen. A **View poster** button appears in the bottom bar |
+| 6 | With your second "person", step onto the same tinted floor | Both of you appear in the call |
+| 7 | Walk the first person off the tinted floor | Their call window closes within about 5 seconds and they disappear from the other person's call |
+| 8 | Bring both people together on the plain floor in the middle | A small walk-up video bubble connects them (up to 4 people) |
+| 9 | Stay in a call for more than 5 minutes | The call keeps going. (A cut-off at 5 minutes means the server is back on meet.jit.si: see section 6) |
+
+Things that are **not** bugs: a visitor who popped a call out into its own tab (arrow-out button)
+stays in that call after walking away until they close the tab. People who join a call after the
+first ten start with camera and microphone off; they can switch them on.
+
+### B. In a terminal, about one minute
+
+Copy each line, paste, press Enter, and compare with the expected answer.
+
+```sh
+# 1. The site answers.                                  Expect: 200
+curl -s -o /dev/null -w '%{http_code}\n' https://178-105-222-101.sslip.io/
+
+# 2. The certificate is valid.                          Expect: a date in the future (currently Dec 25 2026)
+echo | openssl s_client -connect 178-105-222-101.sslip.io:443 -servername 178-105-222-101.sslip.io 2>/dev/null | openssl x509 -noout -enddate
+
+# 3. The hall the server serves has 12 poster calls.    Expect: 12
+curl -s https://178-105-222-101.sslip.io/map-storage/prism/maps/hall.tmj | grep -o '"jitsiRoom"' | wc -l
+
+# 4. Every call skips the join screen.                  Expect: 12
+curl -s https://178-105-222-101.sslip.io/map-storage/prism/maps/hall.tmj | grep -o 'prejoinPageEnabled' | wc -l
+
+# 5. The hall is the current layout.                    Expect: 48 x 44
+curl -s https://178-105-222-101.sslip.io/map-storage/prism/maps/hall.tmj | python3 -c "import json,sys; m=json.load(sys.stdin); print(m['width'], 'x', m['height'])"
+
+# 6. A placed poster is served.                         Expect: 200 (try any slug from content/teams.json that has a poster)
+curl -s -o /dev/null -w '%{http_code}\n' https://178-105-222-101.sslip.io/map-storage/prism/pages/posters/aryan-agarwal.jpg
+
+# 7. The video-call service is up.                      Expect: 200
+curl -s -o /dev/null -w '%{http_code}\n' https://meet.element.io/
+```
+
+If you have SSH access (section 2), two more:
+
+```sh
+# 8. All seven services are running.                    Expect: 7 lines, each "Up", four of them "(healthy)"
+ssh root@178.105.222.101 'cd /opt/workadventure && docker compose ps --format "{{.Name}} {{.Status}}"'
+
+# 9. The key settings are as documented in section 6.   Expect: DOMAIN=178-105-222-101.sslip.io, START_ROOM_URL=/~/prism/maps/hall.wam,
+#                                                        JITSI_URL=meet.element.io, MAP_EDITOR_ALLOW_ALL_USERS=false
+ssh root@178.105.222.101 'grep -E "^(DOMAIN|START_ROOM_URL|JITSI_URL|MAP_EDITOR_ALLOW_ALL_USERS)=" /opt/workadventure/.env'
+```
+
+If a check fails, section 7 has the likely cause for each symptom.
+
+## 9. Testing without other people
 
 The private repo varchanaiyer/prism-openday-loadtest has two workflows (Actions tab, Run workflow):
 
@@ -180,14 +246,14 @@ The private repo varchanaiyer/prism-openday-loadtest has two workflows (Actions 
 - **Crowd test**: up to 8 machines times N visitors join together. On 27 September, 32 visitors all got
   in within 27 seconds and stayed 4 minutes with the server comfortable.
 
-## 9. After the event
+## 10. After the event
 
 - To stop paying: in Hetzner Console, delete server `museum-play`, or ask Archana. This also takes the
   museum offline. Download anything you want first.
 - The map storage copies (`prism`, `museum`) live on the server's disk and go with it.
 - The repo, GitHub Pages and the hosted copy stay up for free.
 
-## 10. People
+## 11. People
 
 - **Archana Vaidheeswaran**, owner of the server, the Hetzner account and the private repos.
 - **ChengCheng Tan** (ccstan99), rebuilt the hall as a single poster room; admin on this repo.
