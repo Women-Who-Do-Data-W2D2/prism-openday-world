@@ -6,6 +6,8 @@ AI safety research fellowship run by [Women Who Do Data](https://w2d2.org).
 
 **Play it:** https://178-105-222-101.sslip.io/ (the self-hosted server on Hetzner, no visitor cap).
 
+**Looking after the server or changing the hall?** Start with [HANDOVER.md](HANDOVER.md).
+
 A second copy runs on WorkAdventure's free hosted plan, capped at ten visitors at a time:
 https://play.workadventu.re/_/global/Women-Who-Do-Data-W2D2.github.io/prism-openday-world/maps/hall.tmj.
 It updates from GitHub Pages on every push to `main`. The server copy does not: see "Updating the server" below.
