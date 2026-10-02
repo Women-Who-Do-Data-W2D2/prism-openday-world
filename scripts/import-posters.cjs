@@ -33,7 +33,9 @@ function pdfToPng(pdf) {
     const src = /\.pdf$/i.test(f) ? pdfToPng(path.join(INBOX, f)) : path.join(INBOX, f);
     await sharp(src).flatten({ background: "#ffffff" }).resize({ width: 3000, withoutEnlargement: true }).png().toFile(path.join(ROOT, "content", "posters", t.slug + ".png"));
     fs.mkdirSync(path.join(ROOT, "pages", "posters"), { recursive: true });
-    await sharp(src).flatten({ background: "#ffffff" }).resize({ width: 2000, withoutEnlargement: true }).jpeg({ quality: 85, mozjpeg: true }).toFile(path.join(ROOT, "pages", "posters", t.slug + ".jpg"));
+    /* portrait posters at 2000 px wide; landscape ones keep up to 3000 px so their small text stays readable when zoomed */
+    const meta = await sharp(src).metadata(), wide = (meta.width || 0) > (meta.height || 0);
+    await sharp(src).flatten({ background: "#ffffff" }).resize({ width: wide ? 3000 : 2000, withoutEnlargement: true }).jpeg({ quality: 85, mozjpeg: true }).toFile(path.join(ROOT, "pages", "posters", t.slug + ".jpg"));
     placed[t.slug] = f;
   }
   for (const t of teams) console.log((placed[t.slug] ? "placed   " : "missing  ") + t.mentor.padEnd(26) + (placed[t.slug] || ""));
