@@ -93,8 +93,8 @@ PowerPoint posters: export to PDF first, or on a Mac run `qlmanage -t -s 3000 -o
 use the PNG it makes. Check each poster by eye before placing it: one team's first submission still
 had template text in it.
 
-Posters placed so far: Agarwal, Hudson, Reza Khan, Berg, Hussain, Owen. Still missing: Freedman,
-Narayan, Ibitoye, Ravindra, Heitzig, Krishnan (Krishnan's group sent a slide deck, not a poster).
+All twelve teams' final posters were placed on 2 October 2026 from Archana's `posters_final` folder.
+To replace one, drop the new file in `content/posters-inbox/` (empty it of older files first) and rerun.
 
 **Move a team to another wall or position.** Edit `wall` and `position` in `content/teams.json`.
 Each wall must have exactly positions 1, 2 and 3.
