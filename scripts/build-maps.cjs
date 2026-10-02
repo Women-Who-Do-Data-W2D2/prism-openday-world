@@ -39,7 +39,10 @@ class Room {
   entry(name, x, y, w, h) { this.area(name, x, y, w, h, [prop("start", true)]); }
   arrive(x, y, w, h) { this.entry("arrive", x, y, w, h); for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) this.set("start", x + i, y + j, TS.T.START); }
   website(name, x, y, w, h, url, msg, width = 50) { this.area(name, x, y, w, h, [prop("openWebsite", url), prop("openWebsiteTrigger", "onaction"), prop("openWebsiteTriggerMessage", msg), prop("openWebsiteWidth", width), prop("openWebsiteClosable", true)]); }
-  jitsi(name, x, y, w, h, roomName, msg) { const p = [prop("jitsiRoom", roomName)]; if (msg) { p.push(prop("jitsiTrigger", "onaction")); p.push(prop("jitsiTriggerMessage", msg)); } this.area(name, x, y, w, h, p); }
+  /* Poster calls are freeform: no join screen, no lobby, and no moderator controls (nobody can
+     lock the room, admit people, kick or mute others; the first person in is moderator in name only). Step onto the tinted floor to
+     join, step off to leave. The server's JITSI_URL is meet.element.io, which needs no login. */
+  jitsi(name, x, y, w, h, roomName, msg) { const p = [prop("jitsiRoom", roomName), prop("jitsiConfig", JSON.stringify({"prejoinConfig": {"enabled": false}, "prejoinPageEnabled": false, "requireDisplayName": false, "disableDeepLinking": true, "startWithAudioMuted": false, "startWithVideoMuted": false, "lobby": {"autoKnock": false, "enableChat": false}, "enableLobbyChat": false, "hideLobbyButton": true, "securityUi": {"hideLobbyButton": true, "disableLobbyPassword": true}, "disableModeratorIndicator": true, "disableRemoteMute": true, "remoteVideoMenu": {"disableKick": true, "disableGrantModerator": true, "disablePrivateChat": false}, "participantsPane": {"hideModeratorSettingsTab": true, "hideMoreActionsButton": true, "hideMuteAllButton": true}, "toolbarButtons": ["microphone", "camera", "desktop", "chat", "raisehand", "reactions", "tileview", "fullscreen", "settings", "hangup"]}))]; if (msg) { p.push(prop("jitsiTrigger", "onaction")); p.push(prop("jitsiTriggerMessage", msg)); } this.area(name, x, y, w, h, p); }
   plants(cells) { for (const [x, y] of cells) { if (TS.furniture && TS.furniture.plant) { this.set("props", x, y, TS.furniture.plant); this.set("collisions", x, y, TS.T.COLLIDE); } } }
   build(desc) {
     let lid = 1; const tl = (name, data) => ({ id: lid++, name, type: "tilelayer", visible: true, opacity: 1, x: 0, y: 0, width: this.W, height: this.H, data });
@@ -55,103 +58,69 @@ class Room {
 }
 const F = TS.furniture || {};
 
-/* ---------- the poster hall: single room, 12 teams, 3 per wall ---------- */
+/* ---------- the poster hall: single room, 12 teams, 3 per wall ----------
+   Every poster has its own call: step onto the tinted floor in front of a
+   board and you join that team's video call; step off and you leave it.
+   The call areas are 6 by 4 tiles (the board plus one tile each side) and
+   sit at least 3 tiles from any other call area, corners included, so
+   neighbouring conversations never overlap and there is room to walk
+   between them. The centre, where visitors spawn, is outside every call. */
 function hall() {
-  /*
-   * Layout: ~28x28 room with 12 poster boards (3 per wall)
-   * North wall: teams at positions 1,2,3 (y=4, x varies)
-   * South wall: teams at positions 1,2,3 (y=H-7, x varies)
-   * East wall: teams at positions 1,2,3 (x=W-5, y varies)
-   * West wall: teams at positions 1,2,3 (x=1, y varies)
-   * Spawn in center
-   */
-  const W = 28, H = 28;
+  const W = 48, H = 44, BOARD_W = 4, BOARD_H = 5, DEPTH = 4;   /* boards are 4 by 5: a 2-tile name band over a 4 by 3 poster */
   const r = new Room("hall", W, H);
   r.floor(1, 3, W - 2, H - 4); r.box(0, 0, W, H, 2);
+  if (TS.banners && TS.banners.hall) r.grid("decor", TS.banners.hall, Math.floor(W / 2) - 3, Math.floor(H / 2) - 4);
 
-  // Hall banner in center near spawn (on floor/decor layer)
-  // Banner is 6x3 tiles, center it
-  if (TS.banners && TS.banners.hall) {
-    r.grid("decor", TS.banners.hall, Math.floor(W / 2) - 3, Math.floor(H / 2) - 2);
-  }
-
-  // Group teams by wall
   const byWall = { north: [], east: [], south: [], west: [] };
-  for (const t of teams) {
-    if (byWall[t.wall]) byWall[t.wall].push(t);
+  for (const t of teams) if (byWall[t.wall]) byWall[t.wall].push(t);
+  for (const w of Object.keys(byWall)) byWall[w].sort((a, b) => a.position - b.position);
+
+  const across = [13, 22, 31];     /* board x on the north and south walls: call areas x 12-17, 21-26, 30-35 */
+  const down = [10, 20, 30];       /* board y on the west and east walls:  call areas y 9-15, 19-25, 29-35 */
+  const calls = [], views = [];
+  function poster(t, bx, by, zone) {
+    if (TS.boards && TS.boards[t.slug]) r.grid("walls", TS.boards[t.slug], bx, by, true);
+    const [zx, zy, zw, zh] = zone, tile = TS.callFloors && TS.callFloors[t.wall];
+    if (tile) r.floorOne(zx, zy, zw, zh, tile);
+    const label = t.mentor + ": " + short(t.title, 50);
+    /* the SPACE spot is the row or column touching the board */
+    const near = t.wall === "north" ? [bx, by + BOARD_H, BOARD_W, 1] : t.wall === "south" ? [bx, by - 1, BOARD_W, 1] : t.wall === "west" ? [bx + BOARD_W, by, 1, BOARD_H] : [bx - 1, by, 1, BOARD_H];
+    r.website("poster-" + t.slug, ...near, BASE + "/pages/teams/" + t.slug + ".html", "Press SPACE to read about " + label);
+    /* the VIEW POSTER strip runs along the front edge of the call area, on the side facing the
+       middle of the hall: visitors stop there, read the poster, then step forward into the call */
+    const [vx, vy, vw, vh] =
+      t.wall === "north" ? [zx, zy + zh, zw, 1] :
+      t.wall === "south" ? [zx, zy - 1, zw, 1] :
+      t.wall === "west"  ? [zx + zw, zy, 1, zh] :
+                           [zx - 1, zy, 1, zh];
+    const mat = TS.viewMats && TS.viewMats[t.wall];
+    if (mat) for (let j = 0; j < vh; j++) for (let i = 0; i < vw; i++) r.set("decor", vx + i, vy + j, mat);
+    r.website("view-" + t.slug, vx, vy, vw, vh, BASE + "/pages/posters/" + t.slug + ".html", "Press SPACE to read the poster: " + short(t.title, 50) + ". Step forward to join the team's call.", 70);
+    views.push({ slug: t.slug, x0: vx, y0: vy, x1: vx + vw - 1, y1: vy + vh - 1 });
+    r.jitsi("call-" + t.slug, zx, zy, zw, zh, "PRISM-poster-" + t.slug);
+    r.zone("team-" + t.slug, zx, zy, zw, zh);
+    calls.push({ slug: t.slug, x0: zx, y0: zy, x1: zx + zw - 1, y1: zy + zh - 1 });
   }
-  // Sort by position within each wall
-  for (const wall of Object.keys(byWall)) {
-    byWall[wall].sort((a, b) => a.position - b.position);
+  byWall.north.forEach((t, i) => poster(t, across[i], 4, [across[i] - 1, 4 + BOARD_H, BOARD_W + 2, DEPTH]));
+  byWall.south.forEach((t, i) => { const by = H - 2 - BOARD_H; poster(t, across[i], by, [across[i] - 1, by - DEPTH, BOARD_W + 2, DEPTH]); });
+  byWall.west.forEach((t, i) => poster(t, 1, down[i], [1 + BOARD_W, down[i] - 1, DEPTH, BOARD_H + 2]));
+  byWall.east.forEach((t, i) => { const bx = W - 1 - BOARD_W; poster(t, bx, down[i], [bx - DEPTH, down[i] - 1, DEPTH, BOARD_H + 2]); });
+
+  /* refuse to build if any two call areas come within 3 tiles of each other */
+  const GAP = 3;
+  for (let i = 0; i < calls.length; i++) for (let j = i + 1; j < calls.length; j++) {
+    const a = calls[i], b = calls[j], dx = Math.max(0, b.x0 - a.x1 - 1, a.x0 - b.x1 - 1), dy = Math.max(0, b.y0 - a.y1 - 1, a.y0 - b.y1 - 1);
+    if (Math.max(dx, dy) < GAP) { console.error("CALL AREAS TOO CLOSE:", a.slug, "and", b.slug, "gap", Math.max(dx, dy)); process.exit(1); }
   }
 
-  // Poster board dimensions: 4 wide x 3 tall (from tileset)
-  const BOARD_W = 4, BOARD_H = 3;
+  /* no VIEW POSTER strip may sit inside any call area, or on the spawn */
+  for (const v of views) for (const c of calls) if (v.x1 >= c.x0 && v.x0 <= c.x1 && v.y1 >= c.y0 && v.y0 <= c.y1) { console.error("VIEW STRIP INSIDE A CALL:", v.slug, "in", c.slug); process.exit(1); }
 
-  // North wall: posters face south (boards at y=4, interaction below)
-  // Each board is 4 tiles wide, 2 tile gap between them, shift right to clear W posters
-  const northX = [6, 12, 18]; // x positions for 3 posters (4+2=6 spacing)
-  byWall.north.forEach((t, i) => {
-    const x = northX[i], y = 4;
-    if (TS.boards && TS.boards[t.slug]) {
-      r.grid("walls", TS.boards[t.slug], x, y, true);
-    }
-    // Interaction zone in front of poster (south of board)
-    r.website("poster-" + t.slug, x, y + BOARD_H, BOARD_W, 1, BASE + "/pages/teams/" + t.slug + ".html", "Press SPACE: " + t.mentor + " — " + short(t.title, 50));
-    // Jitsi zone for isolated video chat
-    r.jitsi("call-" + t.slug, x, y + BOARD_H, BOARD_W, 3, "PRISM-" + t.slug);
-    r.zone("team-" + t.slug, x, y + BOARD_H, BOARD_W, 3);
-  });
-
-  // South wall: posters face north (boards at y=H-7, interaction above)
-  const southY = H - 7;
-  byWall.south.forEach((t, i) => {
-    const x = northX[i], y = southY;
-    if (TS.boards && TS.boards[t.slug]) {
-      r.grid("walls", TS.boards[t.slug], x, y, true);
-    }
-    // Interaction zone in front of poster (north of board)
-    r.website("poster-" + t.slug, x, y - 1, BOARD_W, 1, BASE + "/pages/teams/" + t.slug + ".html", "Press SPACE: " + t.mentor + " — " + short(t.title, 50));
-    // Jitsi zone for isolated video chat
-    r.jitsi("call-" + t.slug, x, y - 3, BOARD_W, 3, "PRISM-" + t.slug);
-    r.zone("team-" + t.slug, x, y - 3, BOARD_W, 3);
-  });
-
-  // West wall: posters face east (boards at x=1, interaction to right)
-  // Each board is 3 tiles tall, 2 tile gap between, start at y=8 to clear north posters (end at y=7)
-  const westY = [8, 13, 18]; // y positions for 3 posters
-  byWall.west.forEach((t, i) => {
-    const x = 1, y = westY[i];
-    if (TS.boards && TS.boards[t.slug]) {
-      r.grid("walls", TS.boards[t.slug], x, y, true);
-    }
-    // Interaction zone in front of poster (east of board)
-    r.website("poster-" + t.slug, x + BOARD_W, y, 1, BOARD_H, BASE + "/pages/teams/" + t.slug + ".html", "Press SPACE: " + t.mentor + " — " + short(t.title, 50));
-    // Jitsi zone for isolated video chat
-    r.jitsi("call-" + t.slug, x + BOARD_W, y, 3, BOARD_H, "PRISM-" + t.slug);
-    r.zone("team-" + t.slug, x + BOARD_W, y, 3, BOARD_H);
-  });
-
-  // East wall: posters face west (boards at x=W-5, interaction to left)
-  byWall.east.forEach((t, i) => {
-    const x = W - 5, y = westY[i];
-    if (TS.boards && TS.boards[t.slug]) {
-      r.grid("walls", TS.boards[t.slug], x, y, true);
-    }
-    // Interaction zone in front of poster (west of board)
-    r.website("poster-" + t.slug, x - 1, y, 1, BOARD_H, BASE + "/pages/teams/" + t.slug + ".html", "Press SPACE: " + t.mentor + " — " + short(t.title, 50));
-    // Jitsi zone for isolated video chat
-    r.jitsi("call-" + t.slug, x - 3, y, 3, BOARD_H, "PRISM-" + t.slug);
-    r.zone("team-" + t.slug, x - 3, y, 3, BOARD_H);
-  });
-
-  // Plants in corners
   r.plants([[1, 3], [W - 2, 3], [1, H - 2], [W - 2, H - 2]]);
-
-  // Spawn point in center
-  r.arrive(Math.floor(W / 2) - 1, Math.floor(H / 2), 2, 2);
+  const sx = Math.floor(W / 2) - 1, sy = Math.floor(H / 2);
+  for (const c of calls) if (sx + 1 >= c.x0 && sx <= c.x1 && sy + 1 >= c.y0 && sy <= c.y1) { console.error("SPAWN INSIDE A CALL:", c.slug); process.exit(1); }
+  r.arrive(sx, sy, 2, 2);
   r.zone("hall", 1, 3, W - 2, H - 4);
-
   return r.build(ROOMS.hall.blurb);
 }
 
@@ -167,7 +136,8 @@ for (const key in built) {
 }
 /* No exits to check in single-room layout */
 const zones = { hall: "Welcome to the PRISM Poster Hall. Walk to a poster and press SPACE for details." };
-for (const t of teams) zones["team-" + t.slug] = t.mentor + "'s team: " + t.title;
+for (const t of teams) zones["team-" + t.slug] = "You joined the call at " + t.mentor + "'s poster: " + t.title;
 fs.mkdirSync(path.join(ROOT, "src"), { recursive: true });
-fs.writeFileSync(path.join(ROOT, "src", "world.json"), JSON.stringify({ base: BASE, zones }, null, 1));
+const posters = {}; for (const t of teams) posters["team-" + t.slug] = BASE + "/pages/posters/" + t.slug + ".html";
+fs.writeFileSync(path.join(ROOT, "src", "world.json"), JSON.stringify({ base: BASE, zones, posters }, null, 1));
 console.table(summary); console.log("teams:", teams.length, "· pages base:", BASE);

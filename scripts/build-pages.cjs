@@ -29,6 +29,17 @@ function write(rel, html) { const f = path.join(OUT, rel); fs.mkdirSync(path.dir
 // Wall colors from world.cjs
 const wallColor = wall => WALLS[wall] ? WALLS[wall].color : "#e9b949";
 
+/* poster viewers: just the poster, as large as the panel allows */
+for (const tm of teams) {
+  const has = fs.existsSync(path.join(OUT, "posters", tm.slug + ".jpg"));
+  write(`posters/${tm.slug}.html`, shell("Poster: " + tm.title, `
+<p class="kicker">Poster · <b>${esc(tm.mentor)}'s team</b></p>
+<h1>${esc(tm.title)}</h1>
+${has ? `<a href="${tm.slug}.jpg" target="_blank" rel="noopener" title="Open full size in a new tab"><img src="${tm.slug}.jpg" alt="Poster: ${esc(tm.title)}" style="width:100%;height:auto;border-radius:6px;background:#fff"></a>
+<p class="fine">Click the poster to open it full size in a new tab, where you can zoom.</p>` : `<p>This team's poster has not been submitted yet. Walk onto the tinted floor in front of the board to talk to the team.</p>`}
+<p><a class="btn" href="../teams/${tm.slug}.html">About the project</a></p>`, wallColor(tm.wall)));
+}
+
 /* team pages */
 for (const tm of teams) {
   const color = wallColor(tm.wall);
@@ -42,11 +53,12 @@ for (const tm of teams) {
 <h1>${esc(tm.title)}</h1>
 <p class="authors">Mentor: <b>${esc(tm.mentor)}${coMentorHtml}</b></p>
 ${tm.affiliation ? `<p class="fine">${esc(tm.affiliation)}</p>` : ""}
+${fs.existsSync(path.join(OUT, "posters", tm.slug + ".jpg")) ? `<h2>Poster</h2><a href="../posters/${tm.slug}.jpg" target="_blank" rel="noopener" title="Open the poster full size in a new tab"><img src="../posters/${tm.slug}.jpg" alt="Poster: ${esc(tm.title)}" style="max-width:100%;height:auto;border-radius:6px;background:#fff"></a><p class="fine">Click the poster to open it full size in a new tab.</p>` : ""}
 <h2>About this project</h2>
 <p>${esc(tm.blurb)}</p>
 ${fellowsHtml}
 <h2>Join the conversation</h2>
-<p>Walk into the poster's video zone to join the team's discussion. Multiple teams can present in parallel — each poster has its own isolated video bubble.</p>
+<p>Walk into the poster's video zone to join the team's discussion. Multiple teams can present in parallel Each poster has its own isolated video call.</p>
 <p><a class="btn" href="${BASE}/pages/programme.html">Programme</a> <a class="btn" href="${BASE}/pages/directory.html">Directory</a></p>`, color));
 }
 
@@ -59,13 +71,13 @@ write("directory.html", shell("Directory", `
 <h2>Teams by Wall</h2>
 ${["north", "east", "south", "west"].map(wall => `<div class="card" style="--accent:${wallColor(wall)}"><h3>${wall.charAt(0).toUpperCase() + wall.slice(1)} Wall</h3><p>${byWall(wall).map(t => `<b>${esc(t.mentor)}</b>: ${esc(t.title)}`).join("<br>")}</p></div>`).join("")}
 <h2>Tips</h2>
-<ul><li>Arrow keys or WASD to walk. Walk up to someone and your cameras connect.</li><li>SPACE opens the team details panel when standing near a poster.</li><li>Each poster has its own Jitsi video zone — teams can present in parallel without interference.</li><li>You spawn in the center of the hall with quick access to any poster.</li></ul>`));
+<ul><li>Arrow keys or WASD to walk. Walk up to someone and your cameras connect.</li><li>SPACE opens the team details panel when standing near a poster.</li><li>Each poster has its own video call, so teams can present in parallel without interference.</li><li>You spawn in the center of the hall with quick access to any poster.</li></ul>`));
 
 /* programme */
 const sortedByWall = ["north", "east", "south", "west"].flatMap(wall => byWall(wall));
 write("programme.html", shell("Programme", `
 <p class="kicker">PRISM open day</p><h1>Programme</h1>
-<p>The running order for the poster session. All 12 teams present in parallel — visit any poster to join that team's discussion.</p>
+<p>The running order for the poster session. All 12 teams present in parallel. Visit any poster to join that team's discussion.</p>
 <table><tr><th>Block</th><th>What happens</th><th>Where</th></tr>
 <tr><td>Doors open</td><td>Arrive in the poster hall, pick an avatar.</td><td>Poster Hall</td></tr>
 <tr><td>Opening</td><td>Welcome from the PRISM programme team.</td><td>Zoom (link shared separately)</td></tr>

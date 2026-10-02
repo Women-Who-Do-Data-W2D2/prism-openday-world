@@ -4,7 +4,7 @@
    scripts/build-maps.cjs, which also writes world.json. */
 import world from "./world.json";
 
-const W: { base: string; zones: Record<string, string> } = world;
+const W: { base: string; zones: Record<string, string>; posters: Record<string, string> } = world;
 
 WA.onInit().then(() => {
   // Show zone banners as the player walks around
@@ -20,6 +20,19 @@ WA.onInit().then(() => {
           timeToClose: 3200
         });
       } catch (e) { console.warn("banner", e); }
+    });
+  }
+
+  // A "View poster" button in the action bar while you stand in a poster's call area
+  for (const key of Object.keys(W.posters || {})) {
+    WA.room.onEnterLayer("zone-" + key).subscribe(() => {
+      WA.ui.actionBar.addButton({
+        id: "view-poster", label: "View poster",
+        callback: () => { WA.nav.openCoWebSite(W.posters[key], false, "", 70).catch(e => console.warn(e)); }
+      });
+    });
+    WA.room.onLeaveLayer("zone-" + key).subscribe(() => {
+      try { WA.ui.actionBar.removeButton("view-poster"); } catch (e) { /* already gone */ }
     });
   }
 

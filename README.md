@@ -4,7 +4,13 @@ A walk-around venue for the PRISM open day, built on [WorkAdventure](https://wor
 PRISM is the Peer-vetted Research Initiative for Safety Methodologies, a sixteen-week
 AI safety research fellowship run by [Women Who Do Data](https://w2d2.org).
 
-**Play it:** https://play.workadventu.re/_/global/Women-Who-Do-Data-W2D2.github.io/prism-openday-world/maps/hall.tmj
+**Play it:** https://178-105-222-101.sslip.io/ (the self-hosted server on Hetzner, no visitor cap).
+
+**Looking after the server or changing the hall?** Start with [HANDOVER.md](HANDOVER.md).
+
+A second copy runs on WorkAdventure's free hosted plan, capped at ten visitors at a time:
+https://play.workadventu.re/_/global/Women-Who-Do-Data-W2D2.github.io/prism-openday-world/maps/hall.tmj.
+It updates from GitHub Pages on every push to `main`. The server copy does not: see "Updating the server" below.
 
 Arrow keys or WASD to walk. Walk up to someone and your cameras connect. Stand on a poster
 board and press SPACE to open the team's project page. The Directory button at the bottom
@@ -12,7 +18,9 @@ lists all twelve teams.
 
 ## The poster hall
 
-A single 28×28-tile room with all twelve PRISM teams on four colour-coded walls:
+A single 48×44-tile room with all twelve PRISM teams on four colour-coded walls.
+
+Every poster has its own video call. The tinted floor in front of each board is that poster's call area: step onto it and you join the team's call, step off and you leave. Call areas are 6 by 4 tiles and sit at least three tiles from each other, corners included, so neighbouring conversations never overlap. `scripts/build-maps.cjs` refuses to build if two call areas come closer than that. You spawn in the middle, outside every call.
 
 ```
                ┌─────────────────────────────────┐
@@ -44,6 +52,19 @@ A single 28×28-tile room with all twelve PRISM teams on four colour-coded walls
 The map file is `maps/hall.tmj`.
 
 ![The poster hall](docs/previews/hall.png)
+
+## Putting up the teams' posters
+
+1. Put one file per team in `content/posters-inbox/`: a PDF, PNG or JPG, with the mentor's surname
+   somewhere in the name (`Freedman.pdf`, `poster-hudson-final.png`, `rachel-freedman.jpg` all work).
+2. Run `npm run place-posters`. It lists every team as placed or missing, and any file it could not match.
+3. Look at `docs/previews/hall.png` (after `npm run previews`), commit, push.
+
+Each poster then appears as the thumbnail on that team's wall board, and in full on the team's
+page, which opens when a visitor presses SPACE at the board. PDFs are rendered from their first
+page, so export single-page posters. Posters exported from Canva or Google Slides as PDF work as
+they are. The inbox folder is not committed; the placed copies in `content/posters/` and
+`pages/posters/` are.
 
 ## How it is made
 
@@ -130,3 +151,23 @@ The Hetzner recipe (one small server, about 8 EUR a month) lives in the museum w
 Code MIT (`LICENSE.code`). Maps CC BY 4.0. The generated tileset is CC0, except the poster
 thumbnails painted into it, which belong to their authors and are shown with a link back to
 neurips.cc. Poster pages embed the poster image served by neurips.cc; nothing is re-hosted.
+
+## Updating the server
+
+The server keeps its own copy of the hall in WorkAdventure's map storage, so pushing to GitHub does not
+change it. After a change, build with the pages pointed at the server and upload:
+
+```sh
+export PAGES_BASE=https://178-105-222-101.sslip.io/map-storage/prism
+node scripts/build-maps.cjs && node scripts/build-pages.cjs && npm run build
+(cd dist && zip -qr ../dist.zip .)
+curl -H "Authorization: Bearer $MAP_STORAGE_API_KEY" -F directory=prism -F file=@dist.zip \
+  https://178-105-222-101.sslip.io/map-storage/upload
+unset PAGES_BASE && node scripts/build-maps.cjs && node scripts/build-pages.cjs   # back to the GitHub Pages build
+```
+
+The upload key is `MAP_STORAGE_API_TOKEN` in `/opt/workadventure/.env` on the server; ask Archana.
+
+Video calls in the poster areas use Element's public Jitsi (`JITSI_URL=meet.element.io` on the server),
+which needs no login. Each call area passes a Jitsi config that skips the join screen and hides the
+lobby and moderator controls, so anyone can walk in and out.

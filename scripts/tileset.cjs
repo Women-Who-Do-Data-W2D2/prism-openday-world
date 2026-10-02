@@ -41,6 +41,9 @@ T.EMPTY = A.one(blank()); T.COLLIDE = A.one(blank()); T.ZONE = A.one(blank()); T
 // Hall floor tiles
 const floors = {}, faces = {};
 floors.hall = [A.one(floorTile(ROOMS.hall.floor[0], 1)), A.one(floorTile(ROOMS.hall.floor[1], 2))];
+/* a tinted floor per wall colour, laid under each poster's call area so visitors can see where the call starts */
+const callFloors = {};
+for (const w in WALLS) callFloors[w] = A.one(floorTile(mix(WALLS[w].color, "#ffffff", 0.72), 7));
 
 T.WALL_TOP = A.one(blank().rect(0, 0, SIZE, SIZE, WALLTOP).rect(0, 0, SIZE, 2, tint(WALLTOP, 0.2)).rect(0, SIZE - 2, SIZE, 2, shade(WALLTOP, 0.4)).grain(2, 5));
 
@@ -61,27 +64,38 @@ T.ARROW_UP = A.one(arrow("up")); T.ARROW_DOWN = A.one(arrow("down")); T.ARROW_LE
 async function board(team) {
   // Get wall color for this team's position
   const wallColor = WALLS[team.wall] ? WALLS[team.wall].color : GOLD;
-  const s = new Sprite(128, 96);
-  s.rect(0, 0, 128, 96, WALLTOP).rect(1, 1, 126, 94, PAPER).rect(1, 1, 126, 3, wallColor).rect(0, 94, 128, 2, shade(WALLTOP, 0.5));
+  /* A name band on top (2 tiles): the mentor's name in the largest pixel font that fits, first name
+     on one line and surname on the next, so visitors can find a team from across the hall. The
+     poster and its title sit below it (3 tiles), as before. */
+  const NB = 64, s = new Sprite(128, 96 + NB);
+  s.rect(0, 0, 128, NB, INK).rect(0, 0, 128, 4, wallColor).rect(0, NB - 3, 128, 3, wallColor);
+  const words = team.mentor.trim().split(/\s+/), first = words[0], last = words.length > 2 && !/^(reza|van|de|von|da|del)$/i.test(words[words.length - 2]) ? words[words.length - 1] : words.slice(1).join(" ");
+  let sc = 4; while (sc > 1 && (font.width(first, sc) > 120 || font.width(last, sc) > 120)) sc--;
+  const lh = 5 * sc, gap = sc + 2, top = Math.round((NB - (2 * lh + gap)) / 2) + 1;
+  font.draw(s, 64, top, first, { scale: sc, color: PAPER, align: "center" });
+  font.draw(s, 64, top + lh + gap, last, { scale: sc, color: GOLD, align: "center" });
+  const P = new Sprite(128, 96);
+  P.rect(0, 0, 128, 96, WALLTOP).rect(1, 1, 126, 94, PAPER).rect(1, 1, 126, 3, wallColor).rect(0, 94, 128, 2, shade(WALLTOP, 0.5));
 
   // Try to load the team's poster image
   const posterPath = path.join(ROOT, "content", "posters", team.slug + ".png");
   try {
     const { data, info } = await sharp(posterPath).resize(118, 68, { fit: "inside" }).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
     const ox = 5 + Math.floor((118 - info.width) / 2), oy = 7 + Math.floor((68 - info.height) / 2);
-    for (let y = 0; y < info.height; y++) for (let x = 0; x < info.width; x++) { const k = (y * info.width + x) * 4; s.put(ox + x, oy + y, [data[k], data[k + 1], data[k + 2]], data[k + 3]); }
-    s.frame(ox - 1, oy - 1, info.width + 2, info.height + 2, shade(PAPER, 0.4));
+    for (let y = 0; y < info.height; y++) for (let x = 0; x < info.width; x++) { const k = (y * info.width + x) * 4; P.put(ox + x, oy + y, [data[k], data[k + 1], data[k + 2]], data[k + 3]); }
+    P.frame(ox - 1, oy - 1, info.width + 2, info.height + 2, shade(PAPER, 0.4));
   } catch (e) {
     // Fallback: show placeholder with team mentor name
-    s.rect(5, 7, 118, 68, "#d8d4cc");
-    font.draw(s, 64, 30, "POSTER", { scale: 2, color: INK, align: "center" });
-    font.draw(s, 64, 48, team.mentor.split(" ")[0].toUpperCase(), { scale: 1, color: INK, align: "center" });
+    P.rect(5, 7, 118, 68, "#d8d4cc");
+    font.draw(P, 64, 30, "POSTER", { scale: 2, color: INK, align: "center" });
+    font.draw(P, 64, 48, team.mentor.split(" ")[0].toUpperCase(), { scale: 1, color: INK, align: "center" });
   }
 
   // Title lines at bottom
   const lines = font.wrap(team.title, 30, 2);
-  font.draw(s, 64, 79, lines[0], { scale: 1, color: INK, align: "center" });
-  if (lines[1]) font.draw(s, 64, 86, lines[1], { scale: 1, color: INK, align: "center" });
+  font.draw(P, 64, 79, lines[0], { scale: 1, color: INK, align: "center" });
+  if (lines[1]) font.draw(P, 64, 86, lines[1], { scale: 1, color: INK, align: "center" });
+  s.blit(P, 0, NB);
   return A.add(s);
 }
 
@@ -114,6 +128,21 @@ function whiteboard() { const s = sprite(2, 1); s.rect(2, 2, 60, 26, "#c9ccd2").
   // Wall signs - minimal for hall
   const wallsigns = {};
 
+  // "View poster" plates, one per wall colour, placed beside each board
+  const viewSigns = {};
+  for (const w in WALLS) viewSigns[w] = A.add(plate(["VIEW", "POSTER"], 2, 2, { scales: [2, 2], colors: [GOLD, PAPER], edge: WALLS[w].color }));
+
+  // "View poster" floor mats: a walkable strip along the front edge of each call area.
+  // Each tile shows a small poster with an eye-level "VIEW" label, in the wall colour.
+  const viewMats = {};
+  for (const w in WALLS) {
+    const c = WALLS[w].color, s = new Sprite(SIZE, SIZE);
+    s.rect(0, 0, SIZE, SIZE, mix(c, "#ffffff", 0.45)).frame(0, 0, SIZE, SIZE, shade(c, 0.15)).frame(1, 1, SIZE - 2, SIZE - 2, mix(c, "#ffffff", 0.2));
+    s.rect(10, 4, 12, 15, "#ffffff").frame(10, 4, 12, 15, shade(c, 0.35)).rect(12, 7, 8, 1, shade(c, 0.3)).rect(12, 10, 8, 1, shade(c, 0.3)).rect(12, 13, 5, 1, shade(c, 0.3));
+    font.draw(s, 16, 22, "VIEW", { scale: 1, color: INK, align: "center" });
+    viewMats[w] = A.one(s);
+  }
+
   // Team poster boards
   const boards = {};
   for (const t of teams) {
@@ -121,6 +150,7 @@ function whiteboard() { const s = sprite(2, 1); s.rect(2, 2, 60, 26, "#c9ccd2").
   }
 
   const out = {
+    callFloors,
     file: "../tilesets/prism.png",
     cols: A.cols,
     width: A.width,
@@ -131,6 +161,8 @@ function whiteboard() { const s = sprite(2, 1); s.rect(2, 2, 60, 26, "#c9ccd2").
     faces,
     furniture,
     banners,
+    viewSigns,
+    viewMats,
     boards
   };
 
